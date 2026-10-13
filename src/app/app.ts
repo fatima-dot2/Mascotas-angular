@@ -8,5 +8,10 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
 })
 export class App {
+  mensaje = '';
+
+mostrarMensaje(texto: string): void {
+  this.mensaje = texto;
+}
   protected readonly title = signal('mascotas');
 }
