@@ -1,12 +1,15 @@
 import { TestBed } from '@angular/core/testing';
-import { DogApi } from './dog-api';
+import { DogApiService } from './dog-api';
+import {provideHttpClient} from "@angular/common/http";
 
 describe('DogApi', () => {
-  let service: DogApi;
+  let service: DogApiService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(DogApi);
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient()]
+    });
+    service = TestBed.inject(DogApiService);
   });
 
   it('should be created', () => {
