@@ -1,8 +1,7 @@
 
-
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
   <div class="container">
-    <a class="navbar-brand fw-bold fs-3 text-primary" href="#inicio">
+    <a class="navbar-brand fw-bold fs-3 text-primary" routerLink="/">
       <i class="bi bi-heart-pulse-fill"></i> PetCare
     </a>
 
@@ -10,26 +9,33 @@
       class="navbar-toggler"
       type="button"
       data-bs-toggle="collapse"
-      data-bs-target="#menu">
+      data-bs-target="#menu"
+      aria-controls="menu"
+      aria-expanded="false"
+      aria-label="Abrir menú">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="menu">
       <ul class="navbar-nav ms-auto align-items-lg-center">
         <li class="nav-item">
-          <a class="nav-link" href="#inicio">Inicio</a>
+          <a class="nav-link" routerLink="/">Inicio</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#mascotas">Mascotas</a>
+          <a class="nav-link" routerLink="/perros">Perros</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#cuidados">Cuidados</a>
+          <a class="nav-link" routerLink="/gatos">Gatos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#aprende">Aprende</a>
+          <a class="nav-link" routerLink="/" fragment="cuidados">Cuidados</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" fragment="aprende">Aprende</a>
         </li>
       </ul>
-      <a href="#mascotas" class="btn btn-primary rounded-pill ms-lg-3">
+
+      <a routerLink="/perros" class="btn btn-primary rounded-pill ms-lg-3">
         Comenzar
       </a>
     </div>
@@ -37,192 +43,7 @@
 </nav>
 
 <main>
-  <section id="inicio" class="bg-light py-5">
-    <div class="container py-4">
-      <div class="row align-items-center g-4">
-        <div class="col-lg-6">
-          <span class="badge bg-success rounded-pill mb-3">
-            Tenencia responsable
-          </span>
-
-          <h1 class="display-4 fw-bold">
-            El bienestar de tu mascota comienza aquí.
-          </h1>
-
-          <p class="lead text-secondary">
-            Descubre información sobre perros y gatos, organiza sus cuidados
-            básicos y aprende cómo brindarles una vida más saludable y feliz.
-          </p>
-
-          <a href="#mascotas" class="btn btn-primary btn-lg rounded-pill me-2">
-            Explorar mascotas
-          </a>
-
-          <a href="#cuidados" class="btn btn-outline-success btn-lg rounded-pill">
-            Ver cuidados
-          </a>
-
-          <div class="mt-4">
-            <span class="me-3">
-              <i class="bi bi-book-half text-success"></i>
-              Información educativa
-            </span>
-            <span>
-              <i class="bi bi-calendar-check text-success"></i>
-              Organización
-            </span>
-          </div>
-        </div>
-
-        <div class="col-lg-6 text-center">
-          <div class="bg-white rounded-5 shadow-sm p-5">
-            <div class="display-1">🐶 🐱</div>
-            <h2 class="h3 fw-bold mt-3">¡Bienvenido a PetCare!</h2>
-            <p class="text-secondary mb-0">
-              Todo comienza con el cuidado responsable.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="mascotas" class="py-5">
-    <div class="container py-3">
-      <div class="text-center mb-5">
-        <h2 class="fw-bold">Explora el mundo de las mascotas</h2>
-        <p class="text-secondary">
-          Conoce sus características y necesidades básicas.
-        </p>
-      </div>
-
-      <div class="row g-4">
-        <div class="col-md-6">
-          <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body p-4 text-center">
-              <div class="display-1">🐕</div>
-              <h3 class="card-title fw-bold mt-3">Perros</h3>
-              <p class="card-text text-secondary">
-                Explora razas, características y recomendaciones generales
-                para el cuidado de los perros.
-              </p>
-              <button class="btn btn-primary rounded-pill"
-                (click)="mostrarMensaje('La sección de perros estará disponible próximamente.')">
-                Explorar perros
-                <i class="bi bi-arrow-right"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body p-4 text-center">
-              <div class="display-1">🐈</div>
-              <h3 class="card-title fw-bold mt-3">Gatos</h3>
-              <p class="card-text text-secondary">
-                Aprende sobre razas, comportamiento y necesidades cotidianas
-                de los gatos.
-              </p>
-              <button class="btn btn-success rounded-pill"
-                (click)="mostrarMensaje('La sección de gatos estará disponible próximamente.')">
-                Explorar gatos
-                <i class="bi bi-arrow-right"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="cuidados" class="bg-light py-5">
-    <div class="container py-3">
-      <div class="text-center mb-5">
-        <h2 class="fw-bold">Cuidados básicos</h2>
-        <p class="text-secondary">
-          Acciones cotidianas que favorecen el bienestar animal.
-        </p>
-      </div>
-
-      <div class="row g-4">
-        <div class="col-sm-6 col-lg-3">
-          <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body text-center p-4">
-              <i class="bi bi-cup-hot-fill display-4 text-primary"></i>
-              <h3 class="h5 fw-bold mt-3">Alimentación</h3>
-              <p class="text-secondary mb-0">
-                Infórmate sobre una alimentación apropiada para cada mascota.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-sm-6 col-lg-3">
-          <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body text-center p-4">
-              <i class="bi bi-droplet-fill display-4 text-info"></i>
-              <h3 class="h5 fw-bold mt-3">Hidratación</h3>
-              <p class="text-secondary mb-0">
-                Procura que tenga acceso a agua fresca y limpia.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-sm-6 col-lg-3">
-          <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body text-center p-4">
-              <i class="bi bi-controller display-4 text-success"></i>
-              <h3 class="h5 fw-bold mt-3">Actividad</h3>
-              <p class="text-secondary mb-0">
-                Promueve el juego y la actividad adecuada para su especie.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-sm-6 col-lg-3">
-          <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-body text-center p-4">
-              <i class="bi bi-calendar-heart-fill display-4 text-danger"></i>
-              <h3 class="h5 fw-bold mt-3">Prevención</h3>
-              <p class="text-secondary mb-0">
-                Organiza sus revisiones y consulta al veterinario.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <p class="small text-secondary text-center mt-4">
-        PetCare es una plataforma educativa y no sustituye la atención veterinaria.
-      </p>
-    </div>
-  </section>
-
-  <section id="aprende" class="py-5">
-    <div class="container">
-      <div class="bg-primary text-white rounded-4 p-4 p-lg-5">
-        <div class="row align-items-center g-4">
-          <div class="col-lg-8">
-            <h2 class="fw-bold">Aprende jugando</h2>
-            <p class="mb-0">
-              Pon a prueba tus conocimientos sobre la tenencia responsable
-              con nuestro próximo cuestionario interactivo.
-            </p>
-          </div>
-          <div class="col-lg-4 text-lg-end">
-            <button class="btn btn-light btn-lg rounded-pill"
-              (click)="mostrarMensaje('El cuestionario educativo estará disponible próximamente.')">
-              <i class="bi bi-stars"></i>
-              Probar quiz
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <router-outlet></router-outlet>
 </main>
 
 <footer class="bg-dark text-white py-4">
@@ -232,7 +53,9 @@
         <h3 class="h5 fw-bold mb-1">
           <i class="bi bi-heart-pulse-fill"></i> PetCare
         </h3>
-        <p class="small mb-0">Aprender, cuidar y acompañar responsablemente.</p>
+        <p class="small mb-0">
+          Aprender, cuidar y acompañar responsablemente.
+        </p>
       </div>
       <div class="col-md-6 text-md-end">
         <span class="small">Proyecto educativo 2026</span>
@@ -240,13 +63,3 @@
     </div>
   </div>
 </footer>
-
-<div class="container mt-3">
-  @if (mensaje) {
-    <div class="alert alert-info alert-dismissible fade show" role="status">
-      {{ mensaje }}
-      <button type="button" class="btn-close"
-        aria-label="Cerrar" (click)="mensaje = ''"></button>
-    </div>
-  }
-</div>
