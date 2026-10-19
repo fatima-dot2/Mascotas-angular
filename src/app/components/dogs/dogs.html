@@ -1,47 +1,51 @@
+
 <div class="container py-5">
-    <div class="text-center mb-5">
-      <h1 class="display-5 fw-bold text primary">
-        Razas de perros
-      </h1>
-      <p class="text-secondary">
-        Descubre las diferentes razas de perros y aprende sus cuidados.
-      </p>
+  <div class="text-center mb-5">
+    <h1 class="display-5 fw-bold text-primary">
+      Razas de perros 🐶
+    </h1>
+    <p class="text-secondary">
+      Descubre las diferentes razas de perros y aprende sus cuidados.
+    </p>
+  </div>
+
+  @if (loading) {
+    <div class="alert alert-info text-center">
+      <div
+        class="spinner-border spinner-border-sm me-2"
+        role="status"
+      ></div>
+      Cargando razas de perros...
     </div>
+  }
 
-    @if (loading){
-        <div class="alert alert-info text-center">
-            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-            Cargando razas de perros...
-        </div>
-    }
+  @if (error) {
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+  }
 
-    @if (error){
-        <div class="alert alert-danger " role="alert">
-            {{error}}
-        </div>
-    }
+  @if (!loading && !error && breeds.length === 0) {
+    <div class="alert alert-warning">
+      No se encontraron razas de perros.
+    </div>
+  }
 
-    @if (!loading && !error && breeds.length === 0){
-        <div class="alert alert-warning ">
-            No se encontraron razas de perros.
-        </div>
-    }
+  @if (!loading && !error && breeds.length > 0) {
+    <div class="row g-4">
+      @for (dog of breeds; track dog.id) {
+        <div class="col-sm-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm rounded-4">
+            @if (dog.image?.url) {
+              <img
+                [src]="dog.image.url"
+                [alt]="'Fotografía de ' + dog.name"
+                class="card-img-top"
+                style="height: 220px; object-fit: cover;"
+              />
+            }
 
-    @if (!loading && !error && breeds.length > 0){
-        <div class="row g-4">
-            @for (dog of breeds; track dog.id){
-                <div class="col-sm-6 col-lg-4">
-                    <div class="card h-100 border-0 shadow-sm rounded-4">
-                        @if (dog.image?.url){
-                            <img 
-                            [src]="dog.image.url"
-                            [alt]="'Fotografía de ' + dog.name"
-                            class="card-img-top"
-                            style="height: 220px; object-fit: cover;"
-                            />
-                        }
-
-                        <div class="card-body">
+            <div class="card-body">
               <h2 class="h5 card-title fw-bold">
                 {{ dog.name }}
               </h2>

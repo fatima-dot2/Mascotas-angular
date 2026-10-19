@@ -1,1 +1,63 @@
-<p>cats works!</p>
+
+<div class="container py-4">
+  <div class="text-center mb-4">
+    <h1 class="text-primary fw-bold">🐱 Razas de gatos</h1>
+    <p class="text-muted">
+      Descubre diferentes razas, sus características y temperamentos.
+    </p>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Cargando razas de gatos...</p>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div class="row g-4" *ngIf="!loading && !error">
+    <div class="col-12 col-md-6 col-lg-4"
+         *ngFor="let cat of breeds">
+
+      <div class="card h-100 shadow-sm">
+        <img
+  *ngIf="cat.image?.url; else imagenPredeterminada"
+  [src]="cat.image?.url"
+  [alt]="cat.name"
+  class="card-img-top"
+  style="height: 220px; object-fit: cover;">
+
+<ng-template #imagenPredeterminada>
+  <div class="bg-light d-flex align-items-center justify-content-center"
+       style="height: 220px;">
+    <div class="text-center text-secondary">
+      <div style="font-size: 50px;">🐱</div>
+      <p class="mb-0">Imagen no disponible</p>
+    </div>
+  </div>
+</ng-template>
+        <div class="card-body">
+          <h5 class="card-title text-primary fw-bold">
+            {{ cat.name }}
+          </h5>
+
+          <p *ngIf="cat.origin">
+            <strong>Origen:</strong> {{ cat.origin }}
+          </p>
+
+          <p *ngIf="cat.temperament">
+            <strong>Temperamento:</strong> {{ cat.temperament }}
+          </p>
+
+          <p *ngIf="cat.life_span">
+            <strong>Esperanza de vida:</strong>
+            {{ cat.life_span }} años
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+

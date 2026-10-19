@@ -1,6 +1,6 @@
 
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface CatBreed {
@@ -23,6 +23,10 @@ export class CatApiService {
   constructor(private http: HttpClient) {}
 
   getBreeds(): Observable<CatBreed[]> {
-    return this.http.get<CatBreed[]>(this.apiUrl);
+    const headers = new HttpHeaders({
+      'x-api-key': 'live_yA8mzBpF58ED8bs3OxX8Hh7u0e4g6wYDrrI4c3DNyHoCWtq0KMvdzmVMMhJFBpd0'
+    });
+
+    return this.http.get<CatBreed[]>(this.apiUrl, { headers });
   }
 }
