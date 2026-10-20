@@ -2,15 +2,22 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DogApiService, Dog } from '../../services/dog-api';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dogs',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dogs.html'
 })
 export class Dogs implements OnInit {
+  get filteredBreeds(): Dog[] {
+    return this.breeds.filter(dog => 
+      dog.name.toLowerCase().includes(this.searchText.toLowerCase())
+    );
+  }
   breeds: Dog[] = [];
+  searchText = "";
   loading = true;
   error = '';
 

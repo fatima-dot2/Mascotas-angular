@@ -1,3 +1,14 @@
+<div class="mb-4">
+  <label for="buscarperro" class="form-label fw-bold">
+    Buscar raza de perro:
+  </label>
+   <input
+   id="BuscarPerro"
+   type="text"
+    class="form-control"
+    placeholder="Escribe el nombre de la raza"
+    [(ngModel)]="searchText">
+</div>
 
 <div class="container py-5">
   <div class="text-center mb-5">
@@ -25,7 +36,7 @@
     </div>
   }
 
-  @if (!loading && !error && breeds.length === 0) {
+  @if (!loading && !error && filteredBreeds.length === 0) {
     <div class="alert alert-warning">
       No se encontraron razas de perros.
     </div>
@@ -33,7 +44,7 @@
 
   @if (!loading && !error && breeds.length > 0) {
     <div class="row g-4">
-      @for (dog of breeds; track dog.id) {
+     @for (dog of filteredBreeds; track dog.id) {
         <div class="col-sm-6 col-lg-4">
           <div class="card h-100 border-0 shadow-sm rounded-4">
             @if (dog.image?.url) {

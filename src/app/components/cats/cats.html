@@ -1,5 +1,6 @@
 
 <div class="container py-4">
+
   <div class="text-center mb-4">
     <h1 class="text-primary fw-bold">🐱 Razas de gatos</h1>
     <p class="text-muted">
@@ -7,40 +8,72 @@
     </p>
   </div>
 
+  <!-- Buscador -->
+  <div class="mb-4">
+    <label for="buscarGato" class="form-label fw-bold">
+      Buscar raza de gato:
+    </label>
+    <input
+      id="buscarGato"
+      type="text"
+      class="form-control"
+      placeholder="Ej. Persa, Siamese, Bengal..."
+      [(ngModel)]="searchText">
+  </div>
+
+  <!-- Indicador de carga -->
   <div *ngIf="loading" class="text-center py-5">
     <div class="spinner-border text-primary" role="status"></div>
     <p class="mt-2">Cargando razas de gatos...</p>
   </div>
 
-  <div *ngIf="error" class="alert alert-danger">
+  <!-- Mensaje de error -->
+  <div *ngIf="!loading && error" class="alert alert-danger">
     {{ error }}
   </div>
 
-  <div class="row g-4" *ngIf="!loading && !error">
-    <div class="col-12 col-md-6 col-lg-4"
-         *ngFor="let cat of breeds">
-
-      <div class="card h-100 shadow-sm">
-        <img
-  *ngIf="cat.image?.url; else imagenPredeterminada"
-  [src]="cat.image?.url"
-  [alt]="cat.name"
-  class="card-img-top"
-  style="height: 220px; object-fit: cover;">
-
-<ng-template #imagenPredeterminada>
-  <div class="bg-light d-flex align-items-center justify-content-center"
-       style="height: 220px;">
-    <div class="text-center text-secondary">
-      <div style="font-size: 50px;">🐱</div>
-      <p class="mb-0">Imagen no disponible</p>
-    </div>
+  <!-- Sin resultados -->
+  <div
+    *ngIf="!loading && !error && filteredBreeds.length === 0"
+    class="alert alert-warning">
+    No se encontraron razas de gatos.
   </div>
-</ng-template>
+
+  <!-- Catálogo -->
+  <div
+    class="row g-4"
+    *ngIf="!loading && !error && filteredBreeds.length > 0">
+
+    <div
+      class="col-12 col-md-6 col-lg-4"
+      *ngFor="let cat of filteredBreeds">
+
+      <div class="card h-100 shadow-sm border-0 rounded-4">
+
+        <!-- Fotografía -->
+        <img
+          *ngIf="cat.image?.url"
+          [src]="cat.image!.url"
+          [alt]="'Fotografía de ' + cat.name"
+          class="card-img-top"
+          style="height: 220px; object-fit: cover;">
+
+        <!-- Imagen alternativa -->
+        <div
+          *ngIf="!cat.image?.url"
+          class="bg-light d-flex align-items-center justify-content-center"
+          style="height: 220px;">
+          <div class="text-center text-secondary">
+            <div style="font-size: 50px;">🐱</div>
+            <p class="mb-0">Imagen no disponible</p>
+          </div>
+        </div>
+
+        <!-- Datos de la raza -->
         <div class="card-body">
-          <h5 class="card-title text-primary fw-bold">
+          <h2 class="h5 card-title text-primary fw-bold">
             {{ cat.name }}
-          </h5>
+          </h2>
 
           <p *ngIf="cat.origin">
             <strong>Origen:</strong> {{ cat.origin }}
@@ -55,9 +88,9 @@
             {{ cat.life_span }} años
           </p>
         </div>
-      </div>
 
+      </div>
     </div>
+
   </div>
 </div>
-

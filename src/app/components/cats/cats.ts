@@ -1,16 +1,18 @@
 
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CatApiService, CatBreed } from '../../services/cat-api';
 
 @Component({
   selector: 'app-cats',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './cats.html'
 })
 export class Cats implements OnInit {
   breeds: CatBreed[] = [];
+  searchText = '';
   loading = true;
   error = '';
 
@@ -18,6 +20,12 @@ export class Cats implements OnInit {
     private catApi: CatApiService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  get filteredBreeds(): CatBreed[] {
+    return this.breeds.filter(cat =>
+      cat.name.toLowerCase().includes(this.searchText.toLowerCase())
+    );
+  }
 
   ngOnInit(): void {
     this.catApi.getBreeds().subscribe({
