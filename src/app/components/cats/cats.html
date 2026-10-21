@@ -69,11 +69,23 @@
           </div>
         </div>
 
+       
         <!-- Datos de la raza -->
         <div class="card-body">
-          <h2 class="h5 card-title text-primary fw-bold">
-            {{ cat.name }}
-          </h2>
+
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 card-title text-primary fw-bold mb-0">
+              {{ cat.name }}
+            </h2>
+
+            <button
+              type="button"
+              class="btn btn-outline-danger"
+              (click)="toggleFavorite(cat)"
+              [attr.aria-label]="isFavorite(cat.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'">
+              {{ isFavorite(cat.id) ? '❤️' : '🤍' }}
+            </button>
+          </div>
 
           <p *ngIf="cat.origin">
             <strong>Origen:</strong> {{ cat.origin }}
@@ -87,8 +99,8 @@
             <strong>Esperanza de vida:</strong>
             {{ cat.life_span }} años
           </p>
-        </div>
 
+        </div>
       </div>
     </div>
 
