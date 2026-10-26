@@ -1,0 +1,197 @@
+
+<div class="agenda-page container py-5">
+  <header class="agenda-header text-center mb-5">
+    <span class="agenda-icon">🐾</span>
+    <h1>Agenda veterinaria</h1>
+    <p>Organiza las consultas y cuida la salud de tu mascota.</p>
+  </header>
+
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <section class="agenda-card">
+        <h2 class="section-title">Registrar una cita</h2>
+        <p class="text-muted">
+          Completa los datos para programar una consulta.
+        </p>
+
+        <div *ngIf="error" class="alert alert-danger" role="alert">
+          {{ error }}
+        </div>
+
+        <div *ngIf="success" class="alert alert-success" role="status">
+          {{ success }}
+        </div>
+
+        <form (ngSubmit)="addAppointment()" #appointmentForm="ngForm">
+          <div class="mb-3">
+            <label for="petName" class="form-label">
+              Nombre de la mascota
+            </label>
+            <input
+              id="petName"
+              name="petName"
+              type="text"
+              class="form-control"
+              [(ngModel)]="petName"
+              placeholder="Ej. Luna"
+              maxlength="60"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="petType" class="form-label">
+              Tipo de mascota
+            </label>
+            <select
+              id="petType"
+              name="petType"
+              class="form-select"
+              [(ngModel)]="petType"
+              required
+            >
+              <option value="perro">Perro</option>
+              <option value="gato">Gato</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-7 mb-3">
+              <label for="date" class="form-label">Fecha</label>
+              <input
+                id="date"
+                name="date"
+                type="date"
+                class="form-control"
+                [(ngModel)]="date"
+                [min]="minDate"
+                required
+              />
+            </div>
+
+            <div class="col-sm-5 mb-3">
+              <label for="time" class="form-label">Hora</label>
+              <input
+                id="time"
+                name="time"
+                type="time"
+                class="form-control"
+                [(ngModel)]="time"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="veterinarian" class="form-label">
+              Nombre del veterinario
+            </label>
+            <input
+              id="veterinarian"
+              name="veterinarian"
+              type="text"
+              class="form-control"
+              [(ngModel)]="veterinarian"
+              placeholder="Ej. Dra. García"
+              maxlength="100"
+              required
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="reason" class="form-label">
+              Motivo de la consulta
+            </label>
+            <textarea
+              id="reason"
+              name="reason"
+              class="form-control"
+              [(ngModel)]="reason"
+              placeholder="Ej. Revisión general o vacunación"
+              rows="3"
+              maxlength="500"
+              required
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-agenda w-100"
+            [disabled]="!appointmentForm.valid"
+          >
+            <i class="bi bi-calendar-plus me-2"></i>
+            Registrar cita
+          </button>
+        </form>
+      </section>
+    </div>
+
+    <div class="col-lg-7">
+      <section class="agenda-card">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+          <div>
+            <h2 class="section-title mb-1">Mis citas</h2>
+            <p class="text-muted mb-0">
+              {{ appointments.length }}
+              {{ appointments.length === 1 ? 'cita registrada' : 'citas registradas' }}
+            </p>
+          </div>
+          <span class="calendar-decoration">📅</span>
+        </div>
+
+        <div *ngIf="appointments.length === 0" class="empty-state">
+          <div class="empty-icon">🩺</div>
+          <h3>Aún no tienes citas</h3>
+          <p>Registra tu primera cita con el formulario.</p>
+        </div>
+
+        <div
+          *ngFor="let appointment of appointments"
+          class="appointment-item mb-3"
+        >
+          <div class="d-flex justify-content-between align-items-start gap-3">
+            <div class="flex-grow-1">
+              <span class="appointment-date">
+                {{ appointment.date | date:'dd/MM/yyyy' }}
+                · {{ appointment.time }}
+              </span>
+
+              <h3 class="appointment-pet mt-2">
+                <span *ngIf="appointment.petType === 'perro'">🐶</span>
+                <span *ngIf="appointment.petType === 'gato'">🐱</span>
+                <span *ngIf="appointment.petType === 'otro'">🐾</span>
+                {{ appointment.petName }}
+              </h3>
+
+              <p class="mb-1">
+                <strong>Consulta:</strong> {{ appointment.reason }}
+              </p>
+              <p class="mb-2">
+                <strong>Veterinario:</strong> {{ appointment.veterinarian }}
+              </p>
+
+              <span
+                class="status-pill"
+                [class.status-pending]="getStatus(appointment) === 'Pendiente'"
+                [class.status-finished]="getStatus(appointment) === 'Finalizada'"
+              >
+                {{ getStatus(appointment) }}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              (click)="deleteAppointment(appointment.id)"
+              [attr.aria-label]="'Eliminar cita de ' + appointment.petName"
+              title="Eliminar cita"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
