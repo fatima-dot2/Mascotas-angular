@@ -9,6 +9,21 @@ export interface CatBreed {
   temperament?: string;
   life_span?: string;
   origin?: string;
+  weight?: {
+  imperial: string;
+  metric: string;
+};
+
+description?: string;
+adaptability?: number;
+affection_level?: number;
+child_friendly?: number;
+dog_friendly?: number;
+energy_level?: number;
+grooming?: number;
+intelligence?: number;
+social_needs?: number;
+vocalisation?: number;
   image?: {
     url: string;
   };

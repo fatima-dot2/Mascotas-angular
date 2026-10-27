@@ -3,16 +3,33 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+
 export interface Dog {
   id: number;
   name: string;
-  temperament?: string;
+  temperament: string;
   life_span?: string;
   origin?: string;
+
   image?: {
     url: string;
   };
+
+  weight?: {
+    imperial: string;
+    metric: string;
+  };
+
+  height?: {
+    imperial: string;
+    metric: string;
+  };
+
+  bred_for?: string;
+  breed_group?: string;
 }
+
+
 
 @Injectable({
   providedIn: 'root'

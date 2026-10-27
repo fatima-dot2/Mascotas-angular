@@ -1,1 +1,92 @@
-<p>care works!</p>
+
+<div class="container py-5">
+
+  <header class="care-header text-center rounded-4 p-4 p-md-5 mb-5">
+    <div class="display-3 mb-3">🐶 🐱</div>
+    <h1 class="display-5 fw-bold">Consejos de cuidado</h1>
+    <p class="lead mb-0">
+      Aprende a cuidar, proteger y mejorar el bienestar de tus mascotas.
+    </p>
+  </header>
+
+  <div class="text-center mb-4">
+    <h2 class="h3 fw-bold">¿De quién quieres aprender?</h2>
+    <p class="text-secondary">
+      Selecciona una opción para filtrar los consejos.
+    </p>
+
+    <div class="d-flex justify-content-center flex-wrap gap-2">
+      <button
+        type="button"
+        class="btn"
+        [class.btn-primary]="selectedPet === 'todos'"
+        [class.btn-outline-primary]="selectedPet !== 'todos'"
+        (click)="selectPet('todos')">
+        🐾 Todos
+      </button>
+
+      <button
+        type="button"
+        class="btn"
+        [class.btn-primary]="selectedPet === 'perro'"
+        [class.btn-outline-primary]="selectedPet !== 'perro'"
+        (click)="selectPet('perro')">
+        🐶 Perros
+      </button>
+
+      <button
+        type="button"
+        class="btn"
+        [class.btn-primary]="selectedPet === 'gato'"
+        [class.btn-outline-primary]="selectedPet !== 'gato'"
+        (click)="selectPet('gato')">
+        🐱 Gatos
+      </button>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    @for (tip of filteredTips; track tip.title) {
+      <div class="col-12 col-md-6 col-lg-4">
+        <article class="card care-card h-100 border-0 shadow-sm rounded-4">
+          <div class="card-body p-4">
+
+            <div class="care-icon mb-3" aria-hidden="true">
+              {{ tip.icon }}
+            </div>
+
+            <span class="badge rounded-pill text-bg-light mb-3">
+              {{ tip.category }}
+            </span>
+
+            <h3 class="h5 fw-bold">
+              {{ tip.title }}
+            </h3>
+
+            <p class="text-secondary mb-3">
+              {{ tip.description }}
+            </p>
+
+            <div class="small fw-semibold text-primary">
+              @if (tip.pet === 'perro') {
+                🐶 Para perros
+              } @else if (tip.pet === 'gato') {
+                🐱 Para gatos
+              } @else {
+                🐾 Para perros y gatos
+              }
+            </div>
+
+          </div>
+        </article>
+      </div>
+    }
+  </div>
+
+  <div class="alert alert-info mt-5 rounded-4">
+    <strong>Recuerda:</strong> cada mascota tiene necesidades diferentes.
+    Para dudas sobre alimentación, síntomas, vacunas o tratamientos,
+    consulta con un profesional veterinario.
+  </div>
+
+</div>

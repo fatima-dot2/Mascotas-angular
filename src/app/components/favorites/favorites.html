@@ -1,1 +1,82 @@
-<p>favorites works!</p>
+
+<div class="container py-5">
+
+  <div class="text-center mb-5">
+    <h1 class="display-5 fw-bold text-primary">
+      ❤️ Mis favoritos
+    </h1>
+    <p class="text-secondary">
+      Aquí encontrarás los animales que guardaste en favoritos.
+    </p>
+  </div>
+
+  @if (favorites.length === 0) {
+    <div class="alert alert-info text-center">
+      <h2 class="h5">Aún no tienes favoritos</h2>
+      <p class="mb-0">
+        Ve a Perros o Gatos y pulsa el corazón de las razas que quieras guardar.
+      </p>
+    </div>
+  } @else {
+    <div class="row g-4">
+
+      @for (pet of favorites; track pet.type + '-' + pet.id) {
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0 rounded-4">
+
+            @if (pet.image) {
+              <img
+                [src]="pet.image"
+                [alt]="'Fotografía de ' + pet.name"
+                class="card-img-top"
+                style="height: 220px; object-fit: cover;">
+            } @else {
+              <div
+                class="bg-light d-flex align-items-center justify-content-center"
+                style="height: 220px;">
+                <span style="font-size: 50px;">
+                  {{ pet.type === 'perro' ? '🐶' : '🐱' }}
+                </span>
+              </div>
+            }
+
+            <div class="card-body">
+
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h5 text-primary fw-bold mb-0">
+                  {{ pet.name }}
+                </h2>
+
+                <span class="badge text-bg-secondary">
+                  {{ pet.type === 'perro' ? 'Perro' : 'Gato' }}
+                </span>
+              </div>
+
+              @if (pet.origin) {
+                <p><strong>Origen:</strong> {{ pet.origin }}</p>
+              }
+
+              @if (pet.temperament) {
+                <p><strong>Temperamento:</strong> {{ pet.temperament }}</p>
+              }
+
+              @if (pet.life_span) {
+                <p><strong>Esperanza de vida:</strong> {{ pet.life_span }}</p>
+              }
+
+              <button
+                type="button"
+                class="btn btn-outline-danger w-100"
+                (click)="removeFavorite(pet)">
+                Quitar de favoritos 💔
+              </button>
+
+            </div>
+          </div>
+        </div>
+      }
+
+    </div>
+  }
+
+</div>
