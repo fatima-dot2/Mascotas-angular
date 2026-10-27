@@ -1,14 +1,18 @@
 
 import { Injectable } from '@angular/core';
 
+export type AppointmentPetType = 'perro' | 'gato' | 'otro';
+export type AppointmentStatus = 'Pendiente' | 'Completada';
+
 export interface Appointment {
   id: number;
   petName: string;
-  petType: 'perro' | 'gato' | 'otro';
+  petType: AppointmentPetType;
   date: string;
   time: string;
   reason: string;
   veterinarian: string;
+  status?: AppointmentStatus;
 }
 
 @Injectable({
@@ -27,11 +31,7 @@ export class AppointmentService {
 
       const appointments: Appointment[] = JSON.parse(saved);
 
-      if (!Array.isArray(appointments)) {
-        return [];
-      }
-
-      return appointments;
+      return Array.isArray(appointments) ? appointments : [];
     } catch {
       return [];
     }
@@ -44,8 +44,19 @@ export class AppointmentService {
 
     appointments.push({
       ...appointment,
-      id: Date.now()
+      id: Date.now(),
+      status: appointment.status ?? 'Pendiente'
     });
+
+    this.saveAppointments(appointments);
+  }
+
+  markCompleted(id: number): void {
+    const appointments = this.getAppointments().map(appointment =>
+      appointment.id === id
+        ? { ...appointment, status: 'Completada' as const }
+        : appointment
+    );
 
     this.saveAppointments(appointments);
   }
