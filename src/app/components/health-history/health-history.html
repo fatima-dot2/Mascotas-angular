@@ -1,0 +1,242 @@
+
+<div class="health-page container py-5">
+  <header class="health-header text-center mb-5">
+    <div class="health-icon">🩺</div>
+    <h1>Historial de salud</h1>
+    <p>Conserva los registros de salud y bienestar de tus mascotas.</p>
+  </header>
+
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <section class="health-card">
+        <h2 class="section-title">Nuevo registro</h2>
+        <p class="text-muted">
+          Registra una vacuna, consulta u otro evento importante.
+        </p>
+
+        <div *ngIf="error" class="alert alert-danger" role="alert">
+          {{ error }}
+        </div>
+
+        <div *ngIf="success" class="alert alert-success" role="status">
+          {{ success }}
+        </div>
+
+        <form (ngSubmit)="addRecord()" #healthForm="ngForm">
+          <div class="mb-3">
+            <label for="petName" class="form-label">
+              Nombre de la mascota *
+            </label>
+            <input
+              id="petName"
+              name="petName"
+              class="form-control"
+              [(ngModel)]="petName"
+              placeholder="Ej. Luna"
+              maxlength="60"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="petType" class="form-label">
+              Tipo de mascota *
+            </label>
+            <select
+              id="petType"
+              name="petType"
+              class="form-select"
+              [(ngModel)]="petType"
+              required
+            >
+              <option value="perro">Perro</option>
+              <option value="gato">Gato</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="date" class="form-label">Fecha del evento *</label>
+            <input
+              id="date"
+              name="date"
+              type="date"
+              class="form-control"
+              [(ngModel)]="date"
+              [max]="minDate"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="eventType" class="form-label">
+              Tipo de evento *
+            </label>
+            <select
+              id="eventType"
+              name="eventType"
+              class="form-select"
+              [(ngModel)]="eventType"
+              required
+            >
+              <option *ngFor="let type of eventTypes" [value]="type">
+                {{ type }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="veterinarian" class="form-label">
+              Veterinario (opcional)
+            </label>
+            <input
+              id="veterinarian"
+              name="veterinarian"
+              class="form-control"
+              [(ngModel)]="veterinarian"
+              placeholder="Ej. Dra. García"
+              maxlength="100"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="details" class="form-label">
+              Observaciones *
+            </label>
+            <textarea
+              id="details"
+              name="details"
+              class="form-control"
+              [(ngModel)]="details"
+              rows="4"
+              maxlength="1000"
+              placeholder="Anota los detalles relevantes del evento."
+              required
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-health w-100"
+            [disabled]="!healthForm.valid"
+          >
+            <i class="bi bi-clipboard-plus me-2"></i>
+            Guardar registro
+          </button>
+        </form>
+      </section>
+    </div>
+
+    <div class="col-lg-7">
+      <section class="health-card">
+        <div class="d-flex justify-content-between align-items-center gap-2 mb-3 flex-wrap">
+          <div>
+            <h2 class="section-title mb-1">Registros guardados</h2>
+            <p class="text-muted mb-0">
+              Total: {{ records.length }}
+            </p>
+          </div>
+          <span class="records-icon">🐾</span>
+        </div>
+
+        <div class="mb-3">
+          <label for="searchText" class="form-label">
+            Buscar en el historial
+          </label>
+          <input
+            id="searchText"
+            name="searchText"
+            class="form-control"
+            [(ngModel)]="searchText"
+            placeholder="Nombre, evento, veterinario..."
+          />
+        </div>
+
+        <div class="filter-buttons mb-4" aria-label="Filtrar mascotas">
+          <button
+            type="button"
+            class="btn btn-sm"
+            [class.active]="selectedPet === 'todos'"
+            (click)="selectPet('todos')"
+          >
+            Todos
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-sm"
+            [class.active]="selectedPet === 'perro'"
+            (click)="selectPet('perro')"
+          >
+            🐶 Perros
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-sm"
+            [class.active]="selectedPet === 'gato'"
+            (click)="selectPet('gato')"
+          >
+            🐱 Gatos
+          </button>
+        </div>
+
+        <div *ngIf="filteredRecords.length === 0" class="empty-state">
+          <div class="empty-icon">📋</div>
+          <h3>No hay registros para mostrar</h3>
+          <p>
+            Agrega un registro o modifica los filtros de búsqueda.
+          </p>
+        </div>
+
+        <article
+          *ngFor="let record of filteredRecords"
+          class="record-item mb-3"
+        >
+          <div class="d-flex justify-content-between align-items-start gap-3">
+            <div class="flex-grow-1">
+              <span class="record-date">
+                {{ record.date | date:'dd/MM/yyyy' }}
+              </span>
+
+              <h3 class="record-title mt-2">
+                <span *ngIf="record.petType === 'perro'">🐶</span>
+                <span *ngIf="record.petType === 'gato'">🐱</span>
+                <span *ngIf="record.petType === 'otro'">🐾</span>
+                {{ record.petName }}
+              </h3>
+
+              <span class="event-badge">{{ record.eventType }}</span>
+
+              <p class="record-details mt-3 mb-2">
+                {{ record.details }}
+              </p>
+
+              <p class="veterinarian mb-0" *ngIf="record.veterinarian">
+                <i class="bi bi-person-badge me-1"></i>
+                {{ record.veterinarian }}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              (click)="deleteRecord(record.id)"
+              [attr.aria-label]="'Eliminar registro de ' + record.petName"
+              title="Eliminar registro"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </article>
+      </section>
+    </div>
+  </div>
+
+  <p class="health-note mt-4">
+    <i class="bi bi-info-circle me-1"></i>
+    Este historial sirve para organizar información. No sustituye el expediente
+    de una clínica veterinaria ni las indicaciones de un profesional.
+  </p>
+</div>
+

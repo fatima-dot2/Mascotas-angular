@@ -10,6 +10,8 @@ import { RouterOutlet, RouterLink } from '@angular/router';
 export class App {
   mensaje = '';
 
+mascotasAbierto = false;
+serviciosAbierto = false;
 mostrarMensaje(texto: string): void {
   this.mensaje = texto;
 }
