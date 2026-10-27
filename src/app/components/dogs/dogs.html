@@ -97,6 +97,32 @@
                   {{ dog.life_span }}
                 </p>
               }
+
+              
+@if (dog.weight?.metric) {
+  <p class="card-text">
+    <strong>Peso:</strong> {{ dog.weight!.metric }} kg
+  </p>
+}
+
+@if (dog.height?.metric) {
+  <p class="card-text">
+    <strong>Altura:</strong> {{ dog.height!.metric }} cm
+  </p>
+}
+
+@if (dog.breed_group) {
+  <p class="card-text">
+    <strong>Grupo:</strong> {{ dog.breed_group }}
+  </p>
+}
+
+@if (dog.bred_for) {
+  <p class="card-text">
+    <strong>Función original:</strong> {{ dog.bred_for }}
+  </p>
+}
+
             </div>
 
           </div>

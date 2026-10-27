@@ -2,10 +2,16 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 import {
   Appointment,
   AppointmentService
 } from '../../services/appointment';
+
+import {
+  HealthEventType,
+  HealthRecordService
+} from '../../services/health-record';
 
 @Component({
   selector: 'app-agenda',
@@ -30,7 +36,8 @@ export class Agenda {
   minDate = this.getToday();
 
   constructor(
-    private appointmentService: AppointmentService
+    private appointmentService: AppointmentService,
+    private healthRecordService: HealthRecordService
   ) {
     this.loadAppointments();
   }
@@ -102,7 +109,8 @@ export class Agenda {
       date: this.date,
       time: this.time,
       reason: this.reason.trim(),
-      veterinarian: this.veterinarian.trim()
+      veterinarian: this.veterinarian.trim(),
+      status: 'Pendiente'
     });
 
     this.loadAppointments();
@@ -134,6 +142,10 @@ export class Agenda {
   }
 
   getStatus(appointment: Appointment): string {
+    if (appointment.status === 'Completada') {
+      return 'Completada';
+    }
+
     const appointmentDate = new Date(
       `${appointment.date}T${appointment.time}`
     );
@@ -141,5 +153,121 @@ export class Agenda {
     return appointmentDate.getTime() < Date.now()
       ? 'Finalizada'
       : 'Pendiente';
+  }
+
+  markCompleted(appointment: Appointment): void {
+    this.error = '';
+    this.success = '';
+
+    if (appointment.status === 'Completada') {
+      this.error = 'Esta cita ya está marcada como completada.';
+      return;
+    }
+
+    const appointmentDate = new Date(
+      `${appointment.date}T${appointment.time}`
+    );
+
+    if (appointmentDate.getTime() > Date.now()) {
+      this.error =
+        'Solo puedes completar una cita cuando ya haya ocurrido.';
+      return;
+    }
+
+    const confirmed = confirm(
+      `¿Confirmas que la cita de ${appointment.petName} ya se realizó?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.appointmentService.markCompleted(appointment.id);
+    this.loadAppointments();
+
+    this.success =
+      'Cita marcada como completada. Ahora puedes crear su registro de salud.';
+  }
+
+  hasHealthRecord(appointmentId: number): boolean {
+    return this.healthRecordService
+      .hasRecordForAppointment(appointmentId);
+  }
+
+  createHealthRecord(appointment: Appointment): void {
+    this.error = '';
+    this.success = '';
+
+    if (appointment.status !== 'Completada') {
+      this.error =
+        'Primero marca la cita como completada.';
+      return;
+    }
+
+    if (this.hasHealthRecord(appointment.id)) {
+      this.error =
+        'Esta cita ya tiene un registro en el historial de salud.';
+      return;
+    }
+
+    const eventTypes: HealthEventType[] = [
+      'Vacuna',
+      'Desparasitación',
+      'Consulta veterinaria',
+      'Medicamento indicado',
+      'Alergia',
+      'Otro'
+    ];
+
+    const choices = eventTypes
+      .map((type, index) => `${index + 1}. ${type}`)
+      .join('\n');
+
+    const selected = prompt(
+      `Selecciona el tipo de registro escribiendo su número:\n\n${choices}`,
+      '3'
+    );
+
+    if (selected === null) {
+      return;
+    }
+
+    const index = Number(selected) - 1;
+
+    if (
+      !Number.isInteger(index) ||
+      index < 0 ||
+      index >= eventTypes.length
+    ) {
+      this.error = 'Selecciona un número válido del 1 al 6.';
+      return;
+    }
+
+    const details = prompt(
+      'Escribe las observaciones reales de la consulta:',
+      `Motivo de la cita: ${appointment.reason}`
+    );
+
+    if (details === null) {
+      return;
+    }
+
+    if (!details.trim()) {
+      this.error = 'Las observaciones no pueden estar vacías.';
+      return;
+    }
+
+    this.healthRecordService.addRecord({
+      petName: appointment.petName,
+      petType: appointment.petType,
+      date: appointment.date,
+      eventType: eventTypes[index],
+      veterinarian: appointment.veterinarian,
+      details: details.trim(),
+      appointmentId: appointment.id
+    });
+
+    this.success =
+      'Registro creado. Ya puedes consultarlo en el Historial de Salud.';
   }
 }
