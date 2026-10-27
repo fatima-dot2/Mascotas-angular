@@ -17,23 +17,49 @@
     </button>
 
     <div class="collapse navbar-collapse" id="menu">
-      <ul class="navbar-nav ms-auto align-items-lg-center">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/">Inicio</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/perros">Perros</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/gatos">Gatos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/" fragment="cuidados">Cuidados</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/" fragment="aprende">Aprende</a>
-        </li>
+      
+<ul class="navbar-nav ms-auto align-items-lg-center">
+  <li class="nav-item">
+    <a class="nav-link" routerLink="/">Inicio</a>
+  </li>
+
+  <li class="nav-item dropdown">
+    <button
+      type="button"
+      class="nav-link dropdown-toggle menu-button"
+      (click)="mascotasAbierto = !mascotasAbierto; serviciosAbierto = false"
+      [attr.aria-expanded]="mascotasAbierto">
+      <i class="bi bi-paw me-1"></i> Mascotas
+    </button>
+
+    @if (mascotasAbierto) {
+      <ul class="dropdown-menu show">
+        <li><a class="dropdown-item" routerLink="/perros" (click)="mascotasAbierto = false">🐶 Perros</a></li>
+        <li><a class="dropdown-item" routerLink="/gatos" (click)="mascotasAbierto = false">🐱 Gatos</a></li>
+        <li><a class="dropdown-item" routerLink="/favoritos" (click)="mascotasAbierto = false">❤️ Favoritos</a></li>
       </ul>
+    }
+  </li>
+
+  <li class="nav-item dropdown">
+    <button
+      type="button"
+      class="nav-link dropdown-toggle menu-button"
+      (click)="serviciosAbierto = !serviciosAbierto; mascotasAbierto = false"
+      [attr.aria-expanded]="serviciosAbierto">
+      <i class="bi bi-grid me-1"></i> Servicios
+    </button>
+
+    @if (serviciosAbierto) {
+      <ul class="dropdown-menu show">
+        <li><a class="dropdown-item" routerLink="/cuidados" (click)="serviciosAbierto = false">📚 Cuidados</a></li>
+        <li><a class="dropdown-item" routerLink="/agenda" (click)="serviciosAbierto = false">📅 Agenda veterinaria</a></li>
+        <li><a class="dropdown-item" routerLink="/historial-salud" (click)="serviciosAbierto = false">🩺 Historial de salud</a></li>
+      </ul>
+    }
+  </li>
+</ul>
+
 
       <a routerLink="/perros" class="btn btn-primary rounded-pill ms-lg-3">
         Comenzar
@@ -57,6 +83,7 @@
           Aprender, cuidar y acompañar responsablemente.
         </p>
       </div>
+
       <div class="col-md-6 text-md-end">
         <span class="small">Proyecto educativo 2026</span>
       </div>
