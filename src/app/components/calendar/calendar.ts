@@ -60,7 +60,6 @@ export class Calendar {
     this.refreshCalendar();
   }
 
-  // Fecha local en formato YYYY-MM-DD.
   private toDateString(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -98,7 +97,6 @@ export class Calendar {
       );
   }
 
-  // Lee las citas y los recordatorios ya guardados.
   refreshCalendar(): void {
     const appointments = this.appointmentService.getAppointments();
     const reminders = this.reminderService.getReminders();
@@ -122,7 +120,7 @@ export class Calendar {
       `${appointment.date}T${appointment.time}`
     );
 
-    let status = appointment.status ?? 'Pendiente';
+    let status: string = appointment.status ?? 'Pendiente';
 
     if (
       status !== 'Completada' &&
@@ -178,7 +176,6 @@ export class Calendar {
       1
     );
 
-    // La semana comienza el lunes.
     const mondayOffset = (firstOfMonth.getDay() + 6) % 7;
 
     const firstCell = new Date(

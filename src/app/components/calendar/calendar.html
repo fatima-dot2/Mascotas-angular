@@ -1,281 +1,253 @@
 
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <span class="badge bg-success mb-2">PETCARE</span>
+      <h1 class="h2 fw-bold mb-1">Calendario veterinario</h1>
+      <p class="text-secondary mb-0">
+        Organiza las citas y los recordatorios de tus mascotas.
+      </p>
+    </div>
 
-import {
-  Appointment,
-  AppointmentService
-} from '../../services/appointment';
+    <button
+      type="button"
+      class="btn btn-outline-success"
+      (click)="goToToday()">
+      <i class="bi bi-calendar-check me-1"></i>
+      Hoy
+    </button>
+  </div>
 
-import {
-  ReminderService,
-  VaccineReminder
-} from '../../services/reminder';
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
 
-type CalendarView = 'month' | 'week';
+      <!-- Navegación y vistas -->
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 
-interface CalendarEvent {
-  id: string;
-  kind: 'appointment' | 'vaccine';
-  title: string;
-  petName: string;
-  date: string;
-  time?: string;
-  description?: string;
-  status: string;
-}
+        <div class="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="previousPeriod()"
+            aria-label="Periodo anterior">
+            <i class="bi bi-chevron-left"></i>
+          </button>
 
-interface CalendarDay {
-  date: string;
-  number: number;
-  isToday: boolean;
-  inCurrentMonth: boolean;
-  events: CalendarEvent[];
-}
+          <h2 class="h5 text-capitalize fw-bold mb-0">
+            {{ monthTitle }}
+          </h2>
 
-@Component({
-  selector: 'app-calendar',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './calendar.html'
-})
-export class Calendar {
-  view: CalendarView = 'month';
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="nextPeriod()"
+            aria-label="Periodo siguiente">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
 
-  weekDayNames = [
-    'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'
-  ];
+        <div class="btn-group" role="group" aria-label="Vista del calendario">
+          <button
+            type="button"
+            class="btn"
+            [class.btn-success]="view === 'month'"
+            [class.btn-outline-success]="view !== 'month'"
+            (click)="selectView('month')">
+            Mensual
+          </button>
 
-  days: CalendarDay[] = [];
-  weekDays: CalendarDay[] = [];
-  selectedDate = this.toDateString(new Date());
-  monthTitle = '';
-  allEvents: CalendarEvent[] = [];
+          <button
+            type="button"
+            class="btn"
+            [class.btn-success]="view === 'week'"
+            [class.btn-outline-success]="view !== 'week'"
+            (click)="selectView('week')">
+            Semanal
+          </button>
+        </div>
+      </div>
 
-  constructor(
-    private appointmentService: AppointmentService,
-    private reminderService: ReminderService
-  ) {
-    this.refreshCalendar();
-  }
+      <!-- Leyenda -->
+      <div class="d-flex flex-wrap gap-3 small mb-3">
+        <span>
+          <span class="badge bg-success me-1">&nbsp;</span>
+          Citas veterinarias
+        </span>
 
-  private toDateString(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+        <span>
+          <span class="badge bg-warning me-1">&nbsp;</span>
+          Recordatorios de vacunas
+        </span>
+      </div>
 
-    return `${year}-${month}-${day}`;
-  }
+      <!-- Cuadrícula -->
+      <div class="table-responsive">
+        <table class="table table-bordered text-center align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th *ngFor="let name of weekDayNames">
+                {{ name }}
+              </th>
+            </tr>
+          </thead>
 
-  private parseDate(dateString: string): Date {
-    const [year, month, day] = dateString.split('-').map(Number);
-    return new Date(year, month - 1, day);
-  }
+          <tbody>
+            <tr *ngFor="let row of (view === 'month'
+              ? [
+                  days.slice(0, 7),
+                  days.slice(7, 14),
+                  days.slice(14, 21),
+                  days.slice(21, 28),
+                  days.slice(28, 35),
+                  days.slice(35, 42)
+                ]
+              : [weekDays])">
 
-  private getToday(): string {
-    return this.toDateString(new Date());
-  }
+              <td
+                *ngFor="let day of row"
+                class="p-1"
+                [class.bg-light]="!day.inCurrentMonth && view === 'month'"
+                [class.table-success]="selectedDate === day.date">
 
-  get selectedDateLabel(): string {
-    return this.parseDate(this.selectedDate).toLocaleDateString(
-      'es-MX',
-      {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      }
-    );
-  }
+                <button
+                  type="button"
+                  class="btn btn-sm w-100 mb-1"
+                  [class.btn-success]="day.isToday"
+                  [class.btn-outline-success]="!day.isToday"
+                  (click)="selectDay(day)">
+                  {{ day.number }}
+                </button>
 
-  get selectedEvents(): CalendarEvent[] {
-    return this.allEvents
-      .filter(event => event.date === this.selectedDate)
-      .sort((a, b) =>
-        (a.time ?? '').localeCompare(b.time ?? '')
-      );
-  }
+                <div
+                  *ngFor="let event of day.events.slice(0, 2)"
+                  class="small text-start mb-1">
 
-  refreshCalendar(): void {
-    const appointments = this.appointmentService.getAppointments();
-    const reminders = this.reminderService.getReminders();
+                  <span
+                    class="badge w-100 text-wrap"
+                    [class.bg-success]="event.kind === 'appointment'"
+                    [class.bg-warning]="event.kind === 'vaccine'"
+                    [class.text-dark]="event.kind === 'vaccine'">
 
-    this.allEvents = [
-      ...appointments.map(appointment =>
-        this.mapAppointment(appointment)
-      ),
-      ...reminders.map(reminder =>
-        this.mapReminder(reminder)
-      )
-    ];
+                    {{ event.kind === 'appointment' ? 'Consulta' : 'Vacuna' }}
+                  </span>
+                </div>
 
-    this.buildCalendar();
-  }
+                <span
+                  *ngIf="day.events.length > 2"
+                  class="small text-secondary">
+                  +{{ day.events.length - 2 }} más
+                </span>
 
-  private mapAppointment(
-    appointment: Appointment
-  ): CalendarEvent {
-    const appointmentTime = new Date(
-      `${appointment.date}T${appointment.time}`
-    );
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    let status: string = appointment.status ?? 'Pendiente';
+      <!-- Actualizar -->
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+        <small class="text-secondary">
+          <i class="bi bi-info-circle me-1"></i>
+          Selecciona un día para consultar sus eventos.
+        </small>
 
-    if (
-      status !== 'Completada' &&
-      appointmentTime.getTime() < Date.now()
-    ) {
-      status = 'Finalizada';
-    }
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          (click)="refreshCalendar()">
+          <i class="bi bi-arrow-clockwise me-1"></i>
+          Actualizar
+        </button>
+      </div>
 
-    return {
-      id: `appointment-${appointment.id}`,
-      kind: 'appointment',
-      title: appointment.reason || 'Consulta veterinaria',
-      petName: appointment.petName,
-      date: appointment.date,
-      time: appointment.time,
-      description: `Veterinario: ${appointment.veterinarian}`,
-      status
-    };
-  }
+    </div>
+  </div>
 
-  private mapReminder(
-    reminder: VaccineReminder
-  ): CalendarEvent {
-    return {
-      id: `vaccine-${reminder.id}`,
-      kind: 'vaccine',
-      title: reminder.vaccine,
-      petName: reminder.petName,
-      date: reminder.date,
-      description: [
-        reminder.veterinarian
-          ? `Veterinario: ${reminder.veterinarian}`
-          : '',
-        reminder.notes || ''
-      ].filter(Boolean).join(' · '),
-      status: this.getReminderStatus(reminder.date)
-    };
-  }
+  <!-- Detalle del día -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+      <h2 class="h5 fw-bold mb-1">Detalle del día</h2>
+      <p class="text-secondary text-capitalize mb-0">
+        {{ selectedDateLabel }}
+      </p>
+    </div>
 
-  private buildCalendar(): void {
-    const selected = this.parseDate(this.selectedDate);
-    const currentMonth = selected.getMonth();
-    const currentYear = selected.getFullYear();
+    <div class="card-body">
 
-    this.monthTitle = selected.toLocaleDateString('es-MX', {
-      month: 'long',
-      year: 'numeric'
-    });
+      <!-- Día sin eventos -->
+      <div
+        *ngIf="selectedEvents.length === 0"
+        class="text-center text-secondary py-4">
 
-    const firstOfMonth = new Date(currentYear, currentMonth, 1);
-    const mondayOffset = (firstOfMonth.getDay() + 6) % 7;
+        <i class="bi bi-calendar2-heart fs-1"></i>
 
-    const firstCell = new Date(
-      currentYear,
-      currentMonth,
-      1 - mondayOffset
-    );
+        <p class="fw-semibold mt-2 mb-1">
+          No hay eventos para este día
+        </p>
 
-    this.days = [];
+        <p class="small mb-0">
+          Las citas y los recordatorios guardados aparecerán aquí.
+        </p>
+      </div>
 
-    for (let i = 0; i < 42; i++) {
-      const date = new Date(firstCell);
-      date.setDate(firstCell.getDate() + i);
+      <!-- Eventos seleccionados -->
+      <div
+        *ngFor="let event of selectedEvents; trackBy: trackByEvent"
+        class="card mb-3"
+        [class.border-success]="event.kind === 'appointment'"
+        [class.border-warning]="event.kind === 'vaccine'">
 
-      this.days.push(this.createDay(date, currentMonth));
-    }
+        <div class="card-body">
 
-    const weekStart = new Date(selected);
-    const offset = (weekStart.getDay() + 6) % 7;
-    weekStart.setDate(weekStart.getDate() - offset);
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <h3 class="h6 fw-bold mb-2">
+              {{ event.title }}
+            </h3>
 
-    this.weekDays = [];
+            <span
+              class="badge"
+              [class.bg-success]="event.kind === 'appointment'"
+              [class.bg-warning]="event.kind === 'vaccine'"
+              [class.text-dark]="event.kind === 'vaccine'">
 
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(weekStart);
-      date.setDate(weekStart.getDate() + i);
+              {{ event.kind === 'appointment' ? 'Consulta' : 'Vacuna' }}
+            </span>
+          </div>
 
-      this.weekDays.push(this.createDay(date, currentMonth));
-    }
-  }
+          <p class="mb-1">
+            <i class="bi bi-heart me-2"></i>
+            {{ event.petName }}
+          </p>
 
-  private createDay(
-    date: Date,
-    currentMonth: number
-  ): CalendarDay {
-    const dateString = this.toDateString(date);
+          <p *ngIf="event.time" class="mb-1">
+            <i class="bi bi-clock me-2"></i>
+            {{ event.time }}
+          </p>
 
-    return {
-      date: dateString,
-      number: date.getDate(),
-      isToday: dateString === this.getToday(),
-      inCurrentMonth: date.getMonth() === currentMonth,
-      events: this.allEvents.filter(
-        event => event.date === dateString
-      )
-    };
-  }
+          <p *ngIf="event.description" class="text-secondary mb-1">
+            {{ event.description }}
+          </p>
 
-  selectDay(day: CalendarDay): void {
-    this.selectedDate = day.date;
-    this.buildCalendar();
-  }
+          <p class="small mb-0">
+            Estado:
+            <strong>
+              {{ event.kind === 'vaccine'
+                ? getReminderStatus(event.date)
+                : event.status }}
+            </strong>
+          </p>
 
-  selectView(view: CalendarView): void {
-    this.view = view;
-    this.buildCalendar();
-  }
+        </div>
+      </div>
 
-  goToToday(): void {
-    this.selectedDate = this.getToday();
-    this.buildCalendar();
-  }
+    </div>
+  </div>
 
-  previousPeriod(): void {
-    const date = this.parseDate(this.selectedDate);
+  <!-- Aviso -->
+  <div class="alert alert-info mt-4 mb-0" role="note">
+    <i class="bi bi-info-circle me-2"></i>
+    Los recordatorios son orientativos. Confirma las fechas de vacunación
+    con tu veterinario.
+  </div>
 
-    if (this.view === 'month') {
-      date.setDate(1);
-      date.setMonth(date.getMonth() - 1);
-    } else {
-      date.setDate(date.getDate() - 7);
-    }
-
-    this.selectedDate = this.toDateString(date);
-    this.buildCalendar();
-  }
-
-  nextPeriod(): void {
-    const date = this.parseDate(this.selectedDate);
-
-    if (this.view === 'month') {
-      date.setDate(1);
-      date.setMonth(date.getMonth() + 1);
-    } else {
-      date.setDate(date.getDate() + 7);
-    }
-
-    this.selectedDate = this.toDateString(date);
-    this.buildCalendar();
-  }
-
-  getReminderStatus(date: string): string {
-    const today = this.getToday();
-
-    if (date < today) {
-      return 'Vencido';
-    }
-
-    if (date === today) {
-      return 'Hoy';
-    }
-
-    return 'Próximo';
-  }
-
-  trackByEvent(index: number, event: CalendarEvent): string {
-    return event.id;
-  }
-}
+</div>

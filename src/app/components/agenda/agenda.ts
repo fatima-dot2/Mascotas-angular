@@ -2,6 +2,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import {
   ReminderService,
@@ -15,20 +16,18 @@ import {
 
 import {
   HealthEventType,
+  HealthRecord,
   HealthRecordService
 } from '../../services/health-record';
 
 @Component({
   selector: 'app-agenda',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './agenda.html',
   styleUrl: './agenda.css'
 })
 export class Agenda {
-  // =========================
-  // CITAS VETERINARIAS
-  // =========================
 
   appointments: Appointment[] = [];
 
@@ -44,9 +43,6 @@ export class Agenda {
 
   minDate = this.getToday();
 
-  // =========================
-  // RECORDATORIOS DE VACUNAS
-  // =========================
 
   vaccineReminders: VaccineReminder[] = [];
 
@@ -60,9 +56,6 @@ export class Agenda {
   reminderMessage = '';
   reminderError = '';
 
-  // =========================
-  // CONSTRUCTOR
-  // =========================
 
   constructor(
     private appointmentService: AppointmentService,
@@ -73,9 +66,7 @@ export class Agenda {
     this.loadVaccineReminders();
   }
 
-  // =========================
-  // FECHAS
-  // =========================
+
 
   private getToday(): string {
     const now = new Date();
@@ -86,9 +77,6 @@ export class Agenda {
     return `${year}-${month}-${day}`;
   }
 
-  // =========================
-  // GESTIÓN DE CITAS
-  // =========================
 
   loadAppointments(): void {
     this.appointments = this.appointmentService
@@ -228,9 +216,6 @@ export class Agenda {
       'Cita marcada como completada. Ahora puedes crear su registro de salud.';
   }
 
-  // =========================
-  // HISTORIAL DE SALUD
-  // =========================
 
   hasHealthRecord(appointmentId: number): boolean {
     return this.healthRecordService
@@ -313,10 +298,6 @@ export class Agenda {
       'Registro creado. Ya puedes consultarlo en el Historial de Salud.';
   }
 
-  // =========================
-  // GESTIÓN DE RECORDATORIOS
-  // =========================
-
   loadVaccineReminders(): void {
     this.vaccineReminders = this.reminderService
       .getReminders()
@@ -394,4 +375,91 @@ export class Agenda {
 
     return 'Próximo';
   }
+
+  get petHealthSummaries() {
+    const records: HealthRecord[] =
+      this.healthRecordService.getRecords();
+
+    const reminders = this.reminderService.getReminders();
+
+    const pets = new Map<
+      string,
+      { name: string; type: 'perro' | 'gato' | 'otro' }
+    >();
+
+    const addPet = (
+      name: string,
+      type: 'perro' | 'gato' | 'otro'
+    ) => {
+      const normalizedName = name.trim().toLowerCase();
+
+      if (!normalizedName) {
+        return;
+      }
+
+      const key = `${normalizedName}-${type}`;
+
+      if (!pets.has(key)) {
+        pets.set(key, { name: name.trim(), type });
+      }
+    };
+
+    this.appointments.forEach(appointment =>
+      addPet(appointment.petName, appointment.petType)
+    );
+
+    records.forEach(record =>
+      addPet(record.petName, record.petType)
+    );
+
+    reminders.forEach(reminder =>
+      addPet(reminder.petName, reminder.petType)
+    );
+
+    const today = this.getToday();
+
+    return Array.from(pets.values()).map(pet => {
+      const appointments = this.appointments.filter(
+        appointment =>
+          appointment.petName.trim().toLowerCase() ===
+            pet.name.toLowerCase() &&
+          appointment.petType === pet.type
+      );
+
+      const petRecords = records
+        .filter(
+          record =>
+            record.petName.trim().toLowerCase() ===
+              pet.name.toLowerCase() &&
+            record.petType === pet.type
+        )
+        .sort((a, b) => b.date.localeCompare(a.date));
+
+      const petReminders = reminders
+        .filter(
+          reminder =>
+            reminder.petName.trim().toLowerCase() ===
+              pet.name.toLowerCase() &&
+            reminder.petType === pet.type
+        )
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      return {
+        ...pet,
+        appointmentCount: appointments.length,
+        completedAppointments: appointments.filter(
+          appointment => appointment.status === 'Completada'
+        ).length,
+        healthRecords: petRecords,
+        vaccineReminders: petReminders,
+        overdueVaccines: petReminders.filter(
+          reminder => reminder.date < today
+        ).length,
+        upcomingVaccines: petReminders.filter(
+          reminder => reminder.date >= today
+        ).length
+      };
+    });
+  }
+
 }
