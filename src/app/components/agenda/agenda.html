@@ -172,13 +172,46 @@
                 <strong>Veterinario:</strong> {{ appointment.veterinarian }}
               </p>
 
-              <span
-                class="status-pill"
-                [class.status-pending]="getStatus(appointment) === 'Pendiente'"
-                [class.status-finished]="getStatus(appointment) === 'Finalizada'"
-              >
-                {{ getStatus(appointment) }}
-              </span>
+              
+<span
+  class="status-pill"
+  [class.status-pending]="getStatus(appointment) === 'Pendiente'"
+  [class.status-finished]="getStatus(appointment) === 'Finalizada'"
+  [class.status-completed]="appointment.status === 'Completada'"
+>
+  {{ getStatus(appointment) }}
+</span>
+
+<div class="mt-3 d-flex flex-wrap gap-2">
+  <button
+    *ngIf="getStatus(appointment) === 'Finalizada' && appointment.status !== 'Completada'"
+    type="button"
+    class="btn btn-success btn-sm"
+    (click)="markCompleted(appointment)"
+  >
+    <i class="bi bi-check-circle me-1"></i>
+    Marcar como completada
+  </button>
+
+  <button
+    *ngIf="appointment.status === 'Completada' && !hasHealthRecord(appointment.id)"
+    type="button"
+    class="btn btn-primary btn-sm"
+    (click)="createHealthRecord(appointment)"
+  >
+    <i class="bi bi-clipboard-plus me-1"></i>
+    Crear registro de salud
+  </button>
+
+  <span
+    *ngIf="appointment.status === 'Completada' && hasHealthRecord(appointment.id)"
+    class="badge text-bg-success align-self-center"
+  >
+    <i class="bi bi-check2-all me-1"></i>
+    Registro de salud creado
+  </span>
+</div>
+
             </div>
 
             <button

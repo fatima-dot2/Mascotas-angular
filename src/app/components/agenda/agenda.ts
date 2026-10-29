@@ -4,6 +4,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import {
+  ReminderService,
+  VaccineReminder
+} from '../../services/reminder';
+
+import {
   Appointment,
   AppointmentService
 } from '../../services/appointment';
@@ -21,6 +26,10 @@ import {
   styleUrl: './agenda.css'
 })
 export class Agenda {
+  // =========================
+  // CITAS VETERINARIAS
+  // =========================
+
   appointments: Appointment[] = [];
 
   petName = '';
@@ -35,12 +44,38 @@ export class Agenda {
 
   minDate = this.getToday();
 
+  // =========================
+  // RECORDATORIOS DE VACUNAS
+  // =========================
+
+  vaccineReminders: VaccineReminder[] = [];
+
+  vaccinePetName = '';
+  vaccinePetType: 'perro' | 'gato' | 'otro' = 'perro';
+  vaccineName = '';
+  vaccineDate = '';
+  vaccineVeterinarian = '';
+  vaccineNotes = '';
+
+  reminderMessage = '';
+  reminderError = '';
+
+  // =========================
+  // CONSTRUCTOR
+  // =========================
+
   constructor(
     private appointmentService: AppointmentService,
-    private healthRecordService: HealthRecordService
+    private healthRecordService: HealthRecordService,
+    private reminderService: ReminderService
   ) {
     this.loadAppointments();
+    this.loadVaccineReminders();
   }
+
+  // =========================
+  // FECHAS
+  // =========================
 
   private getToday(): string {
     const now = new Date();
@@ -50,6 +85,10 @@ export class Agenda {
 
     return `${year}-${month}-${day}`;
   }
+
+  // =========================
+  // GESTIÓN DE CITAS
+  // =========================
 
   loadAppointments(): void {
     this.appointments = this.appointmentService
@@ -189,6 +228,10 @@ export class Agenda {
       'Cita marcada como completada. Ahora puedes crear su registro de salud.';
   }
 
+  // =========================
+  // HISTORIAL DE SALUD
+  // =========================
+
   hasHealthRecord(appointmentId: number): boolean {
     return this.healthRecordService
       .hasRecordForAppointment(appointmentId);
@@ -199,8 +242,7 @@ export class Agenda {
     this.success = '';
 
     if (appointment.status !== 'Completada') {
-      this.error =
-        'Primero marca la cita como completada.';
+      this.error = 'Primero marca la cita como completada.';
       return;
     }
 
@@ -269,5 +311,87 @@ export class Agenda {
 
     this.success =
       'Registro creado. Ya puedes consultarlo en el Historial de Salud.';
+  }
+
+  // =========================
+  // GESTIÓN DE RECORDATORIOS
+  // =========================
+
+  loadVaccineReminders(): void {
+    this.vaccineReminders = this.reminderService
+      .getReminders()
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
+
+  addVaccineReminder(): void {
+    this.reminderMessage = '';
+    this.reminderError = '';
+
+    if (
+      !this.vaccinePetName.trim() ||
+      !this.vaccineName.trim() ||
+      !this.vaccineDate
+    ) {
+      this.reminderError =
+        'Completa el nombre de la mascota, la vacuna y la fecha.';
+      return;
+    }
+
+    if (this.vaccineDate < this.getToday()) {
+      this.reminderError =
+        'La fecha del recordatorio debe ser hoy o posterior.';
+      return;
+    }
+
+    this.reminderService.addReminder({
+      petName: this.vaccinePetName.trim(),
+      petType: this.vaccinePetType,
+      vaccine: this.vaccineName.trim(),
+      date: this.vaccineDate,
+      veterinarian: this.vaccineVeterinarian.trim(),
+      notes: this.vaccineNotes.trim()
+    });
+
+    this.loadVaccineReminders();
+
+    this.vaccinePetName = '';
+    this.vaccinePetType = 'perro';
+    this.vaccineName = '';
+    this.vaccineDate = '';
+    this.vaccineVeterinarian = '';
+    this.vaccineNotes = '';
+
+    this.reminderMessage =
+      'Recordatorio de vacuna guardado correctamente.';
+  }
+
+  deleteVaccineReminder(id: number): void {
+    const confirmed = confirm(
+      '¿Seguro que deseas eliminar este recordatorio de vacuna?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.reminderService.deleteReminder(id);
+    this.loadVaccineReminders();
+
+    this.reminderMessage = 'Recordatorio eliminado.';
+    this.reminderError = '';
+  }
+
+  getReminderStatus(date: string): string {
+    const today = this.getToday();
+
+    if (date < today) {
+      return 'Vencido';
+    }
+
+    if (date === today) {
+      return 'Hoy';
+    }
+
+    return 'Próximo';
   }
 }
