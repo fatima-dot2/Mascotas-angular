@@ -21,7 +21,7 @@ export class Login {
 
   constructor(private authService: AuthService) {}
 
-  submit(): void {
+  async submit(): Promise<void> {
     this.error = '';
     this.success = '';
 
@@ -30,36 +30,49 @@ export class Login {
       return;
     }
 
+    if (this.loading) return;
+
     this.loading = true;
 
-    const operation = this.isRegister
-      ? this.authService.register(this.email.trim(), this.password)
-      : this.authService.login(this.email.trim(), this.password);
+    try {
+      if (this.isRegister) {
+        await this.authService.register(
+          this.email.trim(),
+          this.password
+        );
 
-    operation
-      .then(() => {
-        this.success = this.isRegister
-          ? '¡Cuenta creada correctamente!'
-          : '¡Inicio de sesión exitoso!';
-      })
-      .catch((err: any) => {
-        this.error = this.getErrorMessage(err.code);
-      })
-      .finally(() => {
-        this.loading = false;
-      });
+        this.success = '¡Cuenta creada correctamente!';
+      } else {
+        await this.authService.login(
+          this.email.trim(),
+          this.password
+        );
+
+        this.success = '¡Inicio de sesión exitoso!';
+      }
+    } catch (err: any) {
+      this.error = this.getErrorMessage(err?.code);
+    } finally {
+      this.loading = false;
+    }
   }
 
   private getErrorMessage(code: string): string {
     switch (code) {
       case 'auth/email-already-in-use':
-        return 'Este correo ya está registrado.';
+        return 'Este correo ya está registrado. Inicia sesión.';
       case 'auth/invalid-email':
         return 'El correo no es válido.';
       case 'auth/weak-password':
         return 'La contraseña debe tener al menos 6 caracteres.';
       case 'auth/invalid-credential':
         return 'Correo o contraseña incorrectos.';
+      case 'auth/network-request-failed':
+        return 'Error de conexión. Revisa tu internet.';
+      case 'auth/too-many-requests':
+        return 'Demasiados intentos. Espera un momento.';
+      case 'auth/operation-not-allowed':
+        return 'El registro por correo no está habilitado en Firebase.';
       default:
         return 'Ocurrió un error. Intenta nuevamente.';
     }

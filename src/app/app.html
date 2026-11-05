@@ -17,57 +17,89 @@
     </button>
 
     <div class="collapse navbar-collapse" id="menu">
-      
-<ul class="navbar-nav ms-auto align-items-lg-center">
-  <li class="nav-item">
-    <a class="nav-link" routerLink="/">Inicio</a>
-  </li>
+      <ul class="navbar-nav ms-auto align-items-lg-center">
 
-  <li class="nav-item dropdown">
-    <button
-      type="button"
-      class="nav-link dropdown-toggle menu-button"
-      (click)="mascotasAbierto = !mascotasAbierto; serviciosAbierto = false"
-      [attr.aria-expanded]="mascotasAbierto">
-      <i class="bi bi-paw me-1"></i> Mascotas
-    </button>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/">Inicio</a>
+        </li>
 
-    @if (mascotasAbierto) {
-      <ul class="dropdown-menu show">
-        <li><a class="dropdown-item" routerLink="/perros" (click)="mascotasAbierto = false">🐶 Perros</a></li>
-        <li><a class="dropdown-item" routerLink="/gatos" (click)="mascotasAbierto = false">🐱 Gatos</a></li>
-        <li><a class="dropdown-item" routerLink="/favoritos" (click)="mascotasAbierto = false">❤️ Favoritos</a></li>
-      </ul>
-    }
-  </li>
+        <li class="nav-item dropdown">
+          <button
+            type="button"
+            class="nav-link dropdown-toggle menu-button"
+            (click)="mascotasAbierto = !mascotasAbierto; serviciosAbierto = false"
+            [attr.aria-expanded]="mascotasAbierto">
+            <i class="bi bi-paw me-1"></i> Mascotas
+          </button>
 
-  <li class="nav-item dropdown">
-    <button
-      type="button"
-      class="nav-link dropdown-toggle menu-button"
-      (click)="serviciosAbierto = !serviciosAbierto; mascotasAbierto = false"
-      [attr.aria-expanded]="serviciosAbierto">
-      <i class="bi bi-grid me-1"></i> Servicios
-    </button>
+          @if (mascotasAbierto) {
+            <ul class="dropdown-menu show">
+              <li><a class="dropdown-item" routerLink="/perros" (click)="mascotasAbierto = false">🐶 Perros</a></li>
+              <li><a class="dropdown-item" routerLink="/gatos" (click)="mascotasAbierto = false">🐱 Gatos</a></li>
+              <li><a class="dropdown-item" routerLink="/favoritos" (click)="mascotasAbierto = false">❤️ Favoritos</a></li>
+            </ul>
+          }
+        </li>
 
-    @if (serviciosAbierto) {
-      <ul class="dropdown-menu show">
-        <li><a class="dropdown-item" routerLink="/cuidados" (click)="serviciosAbierto = false">📚 Cuidados</a></li>
-        <li><a class="dropdown-item" routerLink="/agenda" (click)="serviciosAbierto = false">📅 Agenda veterinaria</a></li>
-        <li><a class="dropdown-item" routerLink="/historial-salud" (click)="serviciosAbierto = false">🩺 Historial de salud</a></li>
-      </ul>
-    }
-  </li>
-  
-<li>
-  <a class="dropdown-item" routerLink="/calendario">
-    <i class="bi bi-calendar3 me-2"></i>
-    Calendario veterinario
+        <li class="nav-item dropdown">
+          <button
+            type="button"
+            class="nav-link dropdown-toggle menu-button"
+            (click)="serviciosAbierto = !serviciosAbierto; mascotasAbierto = false"
+            [attr.aria-expanded]="serviciosAbierto">
+            <i class="bi bi-grid me-1"></i> Servicios
+          </button>
+
+          @if (serviciosAbierto) {
+            <ul class="dropdown-menu show">
+              <li><a class="dropdown-item" routerLink="/cuidados" (click)="serviciosAbierto = false">📚 Cuidados</a></li>
+              <li><a class="dropdown-item" routerLink="/agenda" (click)="serviciosAbierto = false">📅 Agenda veterinaria</a></li>
+              <li><a class="dropdown-item" routerLink="/historial-salud" (click)="serviciosAbierto = false">🩺 Historial de salud</a></li>
+            </ul>
+          }
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/calendario">
+            <i class="bi bi-calendar3 me-1"></i> Calendario
+          </a>
+        </li>
+
+        <!-- Acceso a la cuenta -->
+        @if (!cargandoSesion) {
+          @if (usuario) {
+            <li class="nav-item">
+              <span class="nav-link text-primary">
+                <i class="bi bi-person-circle me-1"></i>
+                {{ usuario.email }}
+              </span>
+            </li>
+            <li class="nav-item">
+              <button
+                type="button"
+                class="btn btn-outline-danger rounded-pill ms-lg-2"
+                (click)="cerrarSesion()">
+                <i class="bi bi-box-arrow-right me-1"></i>
+                Cerrar sesión
+              </button>
+            </li>
+          } @else {
+            <li class="nav-item">
+              <a routerLink="/login" class="btn btn-outline-primary rounded-pill ms-lg-2">
+                <i class="bi bi-person-circle me-1"></i>
+                Iniciar sesión
+              </a>
+            </li>
+            <li>
+  <a class="dropdown-item" routerLink="/mis-mascotas"
+     (click)="mascotasAbierto = false">
+    🐾 Mis mascotas
   </a>
 </li>
+          }
+        }
 
-</ul>
-
+      </ul>
 
       <a routerLink="/perros" class="btn btn-primary rounded-pill ms-lg-3">
         Comenzar

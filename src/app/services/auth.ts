@@ -4,6 +4,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  onAuthStateChanged,
   User
 } from 'firebase/auth';
 import { auth } from './firebase';
@@ -28,4 +29,10 @@ export class AuthService {
   getCurrentUser(): User | null {
     return auth.currentUser;
   }
+
+  
+listenAuth(callback: (user: User | null) => void) {
+  return onAuthStateChanged(auth, callback);
+}
+
 }
