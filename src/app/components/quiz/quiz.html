@@ -1,1 +1,160 @@
-<p>quiz works!</p>
+
+<div class="container py-5">
+
+  <div class="text-center mb-5">
+    <span class="badge bg-success rounded-pill mb-3">
+      Aprende jugando
+    </span>
+
+    <h1 class="fw-bold">
+      <i class="bi bi-patch-question text-primary"></i>
+      Quiz PetCare
+    </h1>
+
+    <p class="text-muted">
+      Pon a prueba tus conocimientos sobre perros, gatos y tenencia responsable.
+    </p>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <div class="card border-0 shadow rounded-4">
+        <div class="card-body p-4 p-md-5">
+
+          @if (!terminado) {
+
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">
+                Pregunta {{ indice + 1 }} de {{ preguntas.length }}
+              </span>
+
+              <span class="fw-bold text-primary">
+                {{ puntuacion }} puntos
+              </span>
+            </div>
+
+            <div class="progress mb-4" style="height: 8px;">
+              <div
+                class="progress-bar bg-primary"
+                [style.width.%]="porcentaje">
+              </div>
+            </div>
+
+            <h2 class="h4 fw-bold mb-4">
+              {{ preguntas[indice].pregunta }}
+            </h2>
+
+            <div class="d-grid gap-3">
+
+              @for (opcion of preguntas[indice].opciones; track $index) {
+
+                <button
+                  type="button"
+                  class="btn opcion-quiz text-start p-3"
+                  [class.correcta]="respondida && $index === preguntas[indice].correcta"
+                  [class.incorrecta]="respondida && respuestaSeleccionada === $index && $index !== preguntas[indice].correcta"
+                  [disabled]="respondida"
+                  (click)="seleccionarRespuesta($index)">
+
+                  <span class="fw-bold me-2">
+                    {{ ['A', 'B', 'C'][$index] }}.
+                  </span>
+
+                  {{ opcion }}
+
+                  @if (respondida && $index === preguntas[indice].correcta) {
+                    <i class="bi bi-check-circle-fill float-end text-success"></i>
+                  }
+
+                  @if (respondida && respuestaSeleccionada === $index && $index !== preguntas[indice].correcta) {
+                    <i class="bi bi-x-circle-fill float-end text-danger"></i>
+                  }
+
+                </button>
+
+              }
+
+            </div>
+
+            @if (respondida) {
+              <div class="alert mt-4"
+                   [class.alert-success]="respuestaSeleccionada === preguntas[indice].correcta"
+                   [class.alert-warning]="respuestaSeleccionada !== preguntas[indice].correcta">
+
+                <strong>
+                  {{ respuestaSeleccionada === preguntas[indice].correcta
+                     ? '¡Correcto!'
+                     : 'Respuesta incorrecta' }}
+                </strong>
+
+                <p class="mb-0 mt-2">
+                  {{ preguntas[indice].explicacion }}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-primary w-100 mt-3"
+                (click)="siguiente()">
+
+                {{ indice === preguntas.length - 1
+                   ? 'Ver resultado'
+                   : 'Siguiente pregunta' }}
+
+                <i class="bi bi-arrow-right ms-2"></i>
+              </button>
+            }
+
+          } @else {
+
+            <div class="text-center py-3">
+
+              <i class="bi bi-trophy-fill text-warning resultado-icono"></i>
+
+              <h2 class="fw-bold mt-3">
+                ¡Quiz completado!
+              </h2>
+
+              <div class="resultado-puntos my-4">
+                {{ puntuacion }} / {{ preguntas.length }}
+              </div>
+
+              <div class="progress mb-4" style="height: 12px;">
+                <div
+                  class="progress-bar bg-success"
+                  [style.width.%]="(puntuacion / preguntas.length) * 100">
+                </div>
+              </div>
+
+              <p class="lead">
+                {{ mensajeResultado }}
+              </p>
+
+              <button
+                type="button"
+                class="btn btn-primary rounded-pill px-4 mt-3"
+                (click)="reiniciar()">
+
+                <i class="bi bi-arrow-repeat me-2"></i>
+                Volver a jugar
+              </button>
+
+              <a
+                routerLink="/"
+                class="btn btn-outline-secondary rounded-pill px-4 mt-3 ms-2">
+
+                Ir al inicio
+              </a>
+
+            </div>
+
+          }
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

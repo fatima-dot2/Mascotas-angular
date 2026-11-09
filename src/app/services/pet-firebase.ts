@@ -19,7 +19,11 @@ export interface PetFirestore {
   breed: string;
   age: number;
   description: string;
-  photoUrl?: string;
+  sexo?: "Macho" | "Hembra" | "Desconocido";
+  birthdate?: string;
+  weight?: number | null;
+  color?: string
+  personality?: string;
 }
 
 @Injectable({

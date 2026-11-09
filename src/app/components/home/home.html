@@ -1,42 +1,59 @@
+
 <section id="inicio" class="bg-light py-5">
   <div class="container py-4">
     <div class="row align-items-center g-4">
+
       <div class="col-lg-6">
+
         <span class="badge bg-success rounded-pill mb-3">
           Tenencia responsable
         </span>
 
-
-<div class="text-center my-4">
-  <h3>¡Bienvenido a PetCare!</h3>
-  <p>Cuida de tus mascotas y mantén su información organizada.</p>
-
-  <a routerLink="/login" class="btn btn-primary btn-lg">
-    <i class="bi bi-person-circle me-2"></i>
-    Iniciar sesión / Registrarse
-  </a>
-</div>
-
-
         <h1 class="display-4 fw-bold">
           El bienestar de tu mascota comienza aquí.
         </h1>
-        
 
         <p class="lead text-secondary">
           Descubre información sobre perros y gatos, organiza sus cuidados
           básicos y aprende cómo brindarles una vida más saludable y feliz.
         </p>
 
-        <a routerLink="/perros" class="btn btn-primary btn-lg rounded-pill me-2">
-          Explorar perros
-        </a>
+        <!-- Botones según sesión -->
+        <div class="d-flex flex-wrap gap-2">
 
-        <a routerLink="/gatos" class="btn btn-success btn-lg rounded-pill">
-          Explorar gatos
-        </a>
+          @if (usuario) {
+            <a routerLink="/mis-mascotas"
+               class="btn btn-primary btn-lg rounded-pill">
+              <i class="bi bi-paw-fill me-2"></i>
+              Administrar mis mascotas
+            </a>
 
-        
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-lg rounded-pill"
+              (click)="cerrarSesion()">
+              <i class="bi bi-box-arrow-right me-2"></i>
+              Cerrar sesión
+            </button>
+          } @else {
+            <a routerLink="/login"
+               class="btn btn-primary btn-lg rounded-pill">
+              <i class="bi bi-person-circle me-2"></i>
+              Iniciar sesión / Registrarse
+            </a>
+          }
+
+          <a routerLink="/perros"
+             class="btn btn-outline-primary btn-lg rounded-pill">
+            Explorar perros
+          </a>
+
+          <a routerLink="/gatos"
+             class="btn btn-outline-success btn-lg rounded-pill">
+            Explorar gatos
+          </a>
+
+        </div>
 
         <div class="mt-4">
           <span class="me-3">
@@ -48,6 +65,7 @@
             Organización
           </span>
         </div>
+
       </div>
 
       <div class="col-lg-6 text-center">
@@ -59,12 +77,14 @@
           </p>
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
 <section id="mascotas" class="py-5">
   <div class="container">
+
     <div class="text-center mb-5">
       <h2 class="fw-bold">Explora el mundo de las mascotas</h2>
       <p class="text-secondary">
@@ -73,6 +93,7 @@
     </div>
 
     <div class="row g-4">
+
       <div class="col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100">
           <div class="card-body p-4 text-center">
@@ -102,12 +123,14 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
 <section id="cuidados" class="bg-light py-5">
   <div class="container py-3">
+
     <div class="text-center mb-5">
       <h2 class="fw-bold">Cuidados básicos</h2>
       <p class="text-secondary">
@@ -116,6 +139,7 @@
     </div>
 
     <div class="row g-4">
+
       <div class="col-sm-6 col-lg-3">
         <div class="card border-0 shadow-sm rounded-4 h-100">
           <div class="card-body text-center p-4">
@@ -155,18 +179,22 @@
           </div>
         </div>
       </div>
+
     </div>
 
     <p class="small text-secondary text-center mt-4">
       PetCare es educativa y no sustituye la atención veterinaria.
     </p>
+
   </div>
 </section>
 
 <section id="aprende" class="py-5">
   <div class="container">
+
     <div class="bg-primary text-white rounded-4 p-4 p-lg-5">
       <div class="row align-items-center g-4">
+
         <div class="col-lg-8">
           <h2 class="fw-bold">Aprende jugando</h2>
           <p class="mb-0">
@@ -174,12 +202,15 @@
             sobre la tenencia responsable.
           </p>
         </div>
+
         <div class="col-lg-4 text-lg-end">
           <a routerLink="/quiz" class="btn btn-light btn-lg rounded-pill">
             <i class="bi bi-stars"></i> Probar quiz
           </a>
         </div>
+
       </div>
     </div>
+
   </div>
 </section>

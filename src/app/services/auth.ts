@@ -1,12 +1,16 @@
 
 import { Injectable } from '@angular/core';
+
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence,
   User
 } from 'firebase/auth';
+
 import { auth } from './firebase';
 
 @Injectable({
@@ -14,12 +18,24 @@ import { auth } from './firebase';
 })
 export class AuthService {
 
-  register(email: string, password: string) {
-    return createUserWithEmailAndPassword(auth, email, password);
+  async register(email: string, password: string) {
+    await setPersistence(auth, browserLocalPersistence);
+
+    return createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
   }
 
-  login(email: string, password: string) {
-    return signInWithEmailAndPassword(auth, email, password);
+  async login(email: string, password: string) {
+    await setPersistence(auth, browserLocalPersistence);
+
+    return signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
   }
 
   logout() {
@@ -30,9 +46,7 @@ export class AuthService {
     return auth.currentUser;
   }
 
-  
-listenAuth(callback: (user: User | null) => void) {
-  return onAuthStateChanged(auth, callback);
-}
-
+  listenAuth(callback: (user: User | null) => void) {
+    return onAuthStateChanged(auth, callback);
+  }
 }
