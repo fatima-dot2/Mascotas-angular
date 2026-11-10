@@ -3,7 +3,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { User } from 'firebase/auth';
+import { User } from '@supabase/supabase-js';
 
 import { AuthService } from '../../services/auth';
 import {
@@ -27,6 +27,12 @@ export class MyPets implements OnInit, OnDestroy {
   breed = '';
   age: number | null = null;
   description = '';
+  sex: 'Macho' | 'Hembra' | 'No identificado' = 'No identificado';
+  birthDate = '';
+  weight: number | null = null;
+  color = '';
+personality = '';
+observations = '';
 
   usuario: User | null = null;
 
@@ -46,7 +52,7 @@ export class MyPets implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     // Recuperar inicialmente la sesión disponible
-    this.usuario = this.authService.getCurrentUser();
+    this.usuario = null;
 
     // Escuchar los cambios reales de Firebase
     this.unsubscribeAuth = this.authService.listenAuth(user => {
@@ -108,11 +114,16 @@ async addPet(): Promise<void> {
 
   try {
     await this.petService.addPet({
-      name: this.name.trim(),
-      type: this.type,
-      breed: this.breed.trim(),
-      age: this.age,
-      description: this.description.trim()
+  name: this.name.trim(),
+  type: this.type,
+  breed: this.breed.trim(),
+  age: this.age,
+  description: this.description.trim(),
+  sex: this.sex,
+  birthDate: this.birthDate,
+  weight: this.weight,
+  color: this.color.trim(),
+  personality: this.personality.trim()
     });
 
     this.success = '¡Mascota registrada correctamente!';
@@ -122,6 +133,12 @@ async addPet(): Promise<void> {
     this.breed = '';
     this.age = null;
     this.description = '';
+    this.sex = 'No identificado';
+    this.birthDate = '';
+    this.weight = null;
+    this.color = '';
+    this.personality = '';
+    this.observations = '';
 
     // Actualizar registros sin bloquear el formulario
     this.loadPets();

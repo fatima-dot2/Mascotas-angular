@@ -1,29 +1,22 @@
 
 import { Injectable } from '@angular/core';
-import {
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  updateDoc,
-  deleteDoc,
-  query
-} from 'firebase/firestore';
-import { db } from './firebase';
-import { auth } from './firebase';
+import { supabase } from './supabase';
 
 export interface PetFirestore {
   id?: string;
+  user_id?: string;
   name: string;
   type: 'Perro' | 'Gato' | 'Otro';
   breed: string;
   age: number;
   description: string;
-  sexo?: "Macho" | "Hembra" | "Desconocido";
-  birthdate?: string;
+  photoUrl?: string;
+  sex?: 'Macho' | 'Hembra' | 'No identificado';
+  birthDate?: string;
   weight?: number | null;
-  color?: string
+  color?: string;
   personality?: string;
+  observations?: string;
 }
 
 @Injectable({
@@ -31,53 +24,73 @@ export interface PetFirestore {
 })
 export class PetFirestoreService {
 
-  private getUserId(): string {
-    const user = auth.currentUser;
+  async getPets(): Promise<PetFirestore[]> {
+    const { data: { user }, error: authError } =
+      await supabase.auth.getUser();
 
-    if (!user) {
-      throw new Error('Debes iniciar sesión para administrar mascotas.');
+    if (authError || !user) {
+      throw new Error('Debes iniciar sesión.');
     }
 
-    return user.uid;
-  }
+    const { data, error } = await supabase
+      .from('pets')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-  private getPetsCollection() {
-    const uid = this.getUserId();
-    return collection(db, 'users', uid, 'pets');
-  }
+    if (error) throw error;
 
-  async getPets(): Promise<PetFirestore[]> {
-    const petsRef = this.getPetsCollection();
-    const snapshot = await getDocs(query(petsRef));
-
-    return snapshot.docs.map(document => ({
-      id: document.id,
-      ...document.data()
-    } as PetFirestore));
+    return (data ?? []).map(pet => ({
+      ...pet,
+      birthDate: pet.birth_date ?? ''
+    })) as PetFirestore[];
   }
 
   async addPet(pet: PetFirestore): Promise<void> {
-    const petsRef = this.getPetsCollection();
+    const { data: { user }, error: authError } =
+      await supabase.auth.getUser();
 
-    const { id, ...petData } = pet;
+    if (authError || !user) {
+      throw new Error('Debes iniciar sesión.');
+    }
 
-    await addDoc(petsRef, {
-      ...petData,
-      createdAt: new Date()
-    });
+    const { id, user_id, photoUrl, ...petData } = pet;
+
+    const { error } = await supabase
+      .from('pets')
+      .insert({
+        ...petData,
+        user_id: user.id,
+        birth_date: pet.birthDate || null
+      });
+
+    if (error) throw error;
   }
 
-  async updatePet(id: string, pet: Partial<PetFirestore>): Promise<void> {
-    const uid = this.getUserId();
-    const petRef = doc(db, 'users', uid, 'pets', id);
+  async updatePet(
+    id: string,
+    pet: Partial<PetFirestore>
+  ): Promise<void> {
+    const { birthDate, photoUrl, user_id, ...petData } = pet;
 
-    await updateDoc(petRef, pet);
+    const { error } = await supabase
+      .from('pets')
+      .update({
+        ...petData,
+        ...(birthDate !== undefined
+          ? { birth_date: birthDate || null }
+          : {})
+      })
+      .eq('id', id);
+
+    if (error) throw error;
   }
 
   async deletePet(id: string): Promise<void> {
-    const uid = this.getUserId();
-    const petRef = doc(db, 'users', uid, 'pets', id);
+    const { error } = await supabase
+      .from('pets')
+      .delete()
+      .eq('id', id);
 
-    await deleteDoc(petRef);
+    if (error) throw error;
   }
 }

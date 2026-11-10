@@ -12,6 +12,7 @@ import { AuthService } from '../../services/auth';
   styleUrl: './login.css'
 })
 export class Login {
+
   email = '';
   password = '';
   isRegister = false;
@@ -26,55 +27,57 @@ export class Login {
     this.success = '';
 
     if (!this.email.trim() || !this.password) {
-      this.error = 'Completa tu correo y contraseña.';
+      this.error = 'Completa el correo y la contraseña.';
       return;
     }
 
-    if (this.loading) return;
+    if (this.password.length < 6) {
+      this.error = 'La contraseña debe tener al menos 6 caracteres.';
+      return;
+    }
 
     this.loading = true;
 
     try {
+      const result = this.isRegister
+        ? await this.authService.register(
+            this.email.trim(),
+            this.password
+          )
+        : await this.authService.login(
+            this.email.trim(),
+            this.password
+          );
+
+      if (result.error) {
+        this.error = this.isRegister
+          ? 'No se pudo crear la cuenta: ' + result.error.message
+          : 'No se pudo iniciar sesión: ' + result.error.message;
+        return;
+      }
+
       if (this.isRegister) {
-        await this.authService.register(
-          this.email.trim(),
-          this.password
-        );
-
-        this.success = '¡Cuenta creada correctamente!';
+        if (result.data.session) {
+          this.success = '¡Cuenta creada correctamente!';
+        } else {
+          this.success =
+            'Cuenta creada. Revisa tu correo para confirmar el registro.';
+        }
       } else {
-        await this.authService.login(
-          this.email.trim(),
-          this.password
-        );
-
         this.success = '¡Inicio de sesión exitoso!';
       }
-    } catch (err: any) {
-      this.error = this.getErrorMessage(err?.code);
+
+    } catch (error) {
+      console.error('Error de autenticación:', error);
+      this.error = 'Ocurrió un error inesperado.';
     } finally {
       this.loading = false;
     }
   }
 
-  private getErrorMessage(code: string): string {
-    switch (code) {
-      case 'auth/email-already-in-use':
-        return 'Este correo ya está registrado. Inicia sesión.';
-      case 'auth/invalid-email':
-        return 'El correo no es válido.';
-      case 'auth/weak-password':
-        return 'La contraseña debe tener al menos 6 caracteres.';
-      case 'auth/invalid-credential':
-        return 'Correo o contraseña incorrectos.';
-      case 'auth/network-request-failed':
-        return 'Error de conexión. Revisa tu internet.';
-      case 'auth/too-many-requests':
-        return 'Demasiados intentos. Espera un momento.';
-      case 'auth/operation-not-allowed':
-        return 'El registro por correo no está habilitado en Firebase.';
-      default:
-        return 'Ocurrió un error. Intenta nuevamente.';
-    }
+  cambiarModo(): void {
+    this.isRegister = !this.isRegister;
+    this.error = '';
+    this.success = '';
   }
 }

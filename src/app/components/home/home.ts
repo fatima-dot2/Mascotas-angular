@@ -1,7 +1,7 @@
 
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { User } from 'firebase/auth';
+import { User } from '@supabase/supabase-js';
 import { AuthService } from '../../services/auth';
 
 @Component({
