@@ -31,17 +31,26 @@ export class AuthService {
     return null;
   }
 
-  listenAuth(callback: (user: User | null) => void) {
-    supabase.auth.getSession().then(({ data }) => {
+  
+
+listenAuth(callback: (user: User | null) => void) {
+  let inicializado = false;
+
+  const { data } = supabase.auth.onAuthStateChange(
+    (_event, session) => {
+      callback(session?.user ?? null);
+    }
+  );
+
+  supabase.auth.getSession().then(({ data, error }) => {
+    if (!inicializado && !error) {
+      inicializado = true;
       callback(data.session?.user ?? null);
-    });
+    }
+  });
 
-    const { data } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        callback(session?.user ?? null);
-      }
-    );
+  return () => data.subscription.unsubscribe();
+}
 
-    return () => data.subscription.unsubscribe();
-  }
+
 }

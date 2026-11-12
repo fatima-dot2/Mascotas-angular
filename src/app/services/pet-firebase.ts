@@ -53,7 +53,7 @@ export class PetFirestoreService {
       throw new Error('Debes iniciar sesión.');
     }
 
-    const { id, user_id, photoUrl, ...petData } = pet;
+    const { id, user_id, photoUrl, birthDate, ...petData } = pet;
 
     const { error } = await supabase
       .from('pets')

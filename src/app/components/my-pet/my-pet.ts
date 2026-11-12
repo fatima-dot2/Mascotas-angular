@@ -19,7 +19,6 @@ import {
   styleUrl: './my-pet.css'
 })
 export class MyPets implements OnInit, OnDestroy {
-
   pets: PetFirestore[] = [];
 
   name = '';
@@ -31,8 +30,8 @@ export class MyPets implements OnInit, OnDestroy {
   birthDate = '';
   weight: number | null = null;
   color = '';
-personality = '';
-observations = '';
+  personality = '';
+  observations = '';
 
   usuario: User | null = null;
 
@@ -49,84 +48,95 @@ observations = '';
     private authService: AuthService
   ) {}
 
-  ngOnInit(): void {
+  
 
-    // Recuperar inicialmente la sesión disponible
-    this.usuario = null;
+ngOnInit(): void {
+  this.loading = true;
+  this.authReady = false;
 
-    // Escuchar los cambios reales de Firebase
-    this.unsubscribeAuth = this.authService.listenAuth(user => {
+  this.unsubscribeAuth = this.authService.listenAuth(user => {
+    console.log('1. Usuario recibido:', user?.email ?? 'Sin usuario');
 
-      this.usuario = user;
-      this.authReady = true;
+    this.usuario = user;
+    this.authReady = true;
 
-      if (!user) {
-        this.pets = [];
-        this.loading = false;
-        return;
-      }
+    if (user) {
+      console.log('2. Iniciando carga de mascotas');
+      this.loadPets();
+    } else {
+      this.pets = [];
+      this.loading = false;
+      console.log('3. No hay sesión');
+    }
+  });
+}
 
-      void this.loadPets();
-    });
-  }
+
 
   ngOnDestroy(): void {
     this.unsubscribeAuth?.();
   }
 
-  async loadPets(): Promise<void> {
 
-    this.loading = true;
-    this.error = '';
 
-    try {
-      this.pets = await this.petService.getPets();
-    } catch (error) {
-      console.error('Error al cargar mascotas:', error);
-      this.pets = [];
-      this.error =
-        'No se pudieron cargar las mascotas. Revisa los permisos de Firestore.';
-    } finally {
-      this.loading = false;
-    }
+async loadPets(): Promise<void> {
+  this.loading = true;
+  this.error = '';
+
+  try {
+    console.log('4. Consultando Supabase...');
+    this.pets = await this.petService.getPets();
+    console.log('5. Mascotas recibidas:', this.pets);
+  } catch (error) {
+    console.error('6. Error al cargar mascotas:', error);
+    this.error = 'No se pudieron cargar tus mascotas.';
+  } finally {
+    this.loading = false;
+    console.log('7. Carga finalizada');
   }
+}
+
+
+
 
 async addPet(): Promise<void> {
   this.error = '';
   this.success = '';
 
   if (!this.usuario) {
-    this.error = 'Inicia sesión para registrar una mascota.';
+    this.error = 'Debes iniciar sesión.';
     return;
   }
 
-  if (!this.name.trim() || !this.breed.trim() || this.age === null) {
-    this.error = 'Completa el nombre, raza y edad.';
-    return;
-  }
-
-  if (!Number.isInteger(this.age) || this.age < 0 || this.age > 100) {
-    this.error = 'La edad debe ser un número entre 0 y 100.';
+  if (!this.name.trim() || !this.breed.trim()) {
+    this.error = 'Completa el nombre y la raza.';
     return;
   }
 
   this.saving = true;
 
   try {
+    console.log('1. Preparando mascota...');
+
     await this.petService.addPet({
-  name: this.name.trim(),
-  type: this.type,
-  breed: this.breed.trim(),
-  age: this.age,
-  description: this.description.trim(),
-  sex: this.sex,
-  birthDate: this.birthDate,
-  weight: this.weight,
-  color: this.color.trim(),
-  personality: this.personality.trim()
+      name: this.name.trim(),
+      type: this.type,
+      breed: this.breed.trim(),
+      age: Number(this.age),
+      description: this.description.trim(),
+      sex: this.sex,
+      birthDate: this.birthDate || '',
+      weight: this.weight,
+      color: this.color,
+      personality: this.personality,
+      observations: this.observations
     });
 
+    console.log('2. Mascota guardada');
+
     this.success = '¡Mascota registrada correctamente!';
+
+    await this.loadPets();
 
     this.name = '';
     this.type = 'Perro';
@@ -140,19 +150,17 @@ async addPet(): Promise<void> {
     this.personality = '';
     this.observations = '';
 
-    // Actualizar registros sin bloquear el formulario
-    this.loadPets();
-
   } catch (error) {
     console.error('Error al guardar mascota:', error);
     this.error = 'No se pudo guardar la mascota.';
   } finally {
     this.saving = false;
+    console.log('3. Guardado finalizado');
   }
 }
 
-  async deletePet(pet: PetFirestore): Promise<void> {
 
+  async deletePet(pet: PetFirestore): Promise<void> {
     if (!pet.id) return;
 
     const confirmed = confirm(
@@ -165,18 +173,12 @@ async addPet(): Promise<void> {
     this.success = '';
 
     try {
-
       await this.petService.deletePet(pet.id);
-
       await this.loadPets();
-
       this.success = 'Mascota eliminada correctamente.';
-
     } catch (error) {
-
       console.error('Error al eliminar mascota:', error);
       this.error = 'No se pudo eliminar la mascota.';
-
     }
   }
 }
