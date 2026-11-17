@@ -27,30 +27,23 @@ export class AuthService {
   }
 
   getCurrentUser(): User | null {
-    // La sesión se recupera mediante el listener
     return null;
   }
 
-  
+  listenAuth(callback: (user: User | null) => void) {
 
-listenAuth(callback: (user: User | null) => void) {
-  let inicializado = false;
+    const { data } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
 
-  const { data } = supabase.auth.onAuthStateChange(
-    (_event, session) => {
-      callback(session?.user ?? null);
-    }
-  );
+        setTimeout(() => {
+          callback(session?.user ?? null);
+        }, 0);
 
-  supabase.auth.getSession().then(({ data, error }) => {
-    if (!inicializado && !error) {
-      inicializado = true;
-      callback(data.session?.user ?? null);
-    }
-  });
+      }
+    );
 
-  return () => data.subscription.unsubscribe();
-}
-
-
+    return () => {
+      data.subscription.unsubscribe();
+    };
+  }
 }

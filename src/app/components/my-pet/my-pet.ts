@@ -1,11 +1,18 @@
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef
+} from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { User } from '@supabase/supabase-js';
 
 import { AuthService } from '../../services/auth';
+
 import {
   PetFirestoreService,
   PetFirestore
@@ -19,6 +26,7 @@ import {
   styleUrl: './my-pet.css'
 })
 export class MyPets implements OnInit, OnDestroy {
+
   pets: PetFirestore[] = [];
 
   name = '';
@@ -26,7 +34,10 @@ export class MyPets implements OnInit, OnDestroy {
   breed = '';
   age: number | null = null;
   description = '';
-  sex: 'Macho' | 'Hembra' | 'No identificado' = 'No identificado';
+
+  sex: 'Macho' | 'Hembra' | 'No identificado' =
+    'No identificado';
+
   birthDate = '';
   weight: number | null = null;
   color = '';
@@ -45,122 +56,139 @@ export class MyPets implements OnInit, OnDestroy {
 
   constructor(
     private petService: PetFirestoreService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  
+  ngOnInit(): void {
 
-ngOnInit(): void {
-  this.loading = true;
-  this.authReady = false;
+    this.loading = true;
+    this.authReady = false;
 
-  this.unsubscribeAuth = this.authService.listenAuth(user => {
-    console.log('1. Usuario recibido:', user?.email ?? 'Sin usuario');
+    this.unsubscribeAuth = this.authService.listenAuth(user => {
 
-    this.usuario = user;
-    this.authReady = true;
+      // Evitar recargar si el usuario no ha cambiado
+      if (
+        this.authReady &&
+        this.usuario?.id === user?.id
+      ) {
+        return;
+      }
 
-    if (user) {
-      console.log('2. Iniciando carga de mascotas');
-      this.loadPets();
-    } else {
-      this.pets = [];
-      this.loading = false;
-      console.log('3. No hay sesión');
-    }
-  });
-}
+      this.usuario = user;
+      this.authReady = true;
 
+      if (user) {
+        this.loadPets();
+      } else {
+        this.pets = [];
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
 
+    });
+  }
 
   ngOnDestroy(): void {
     this.unsubscribeAuth?.();
   }
 
+  async loadPets(): Promise<void> {
 
+    this.loading = true;
+    this.error = '';
 
-async loadPets(): Promise<void> {
-  this.loading = true;
-  this.error = '';
+    this.cdr.detectChanges();
 
-  try {
-    console.log('4. Consultando Supabase...');
-    this.pets = await this.petService.getPets();
-    console.log('5. Mascotas recibidas:', this.pets);
-  } catch (error) {
-    console.error('6. Error al cargar mascotas:', error);
-    this.error = 'No se pudieron cargar tus mascotas.';
-  } finally {
-    this.loading = false;
-    console.log('7. Carga finalizada');
-  }
-}
+    try {
 
+      console.log('Consultando mascotas...');
 
+      this.pets = await this.petService.getPets();
 
+      console.log('Mascotas recibidas:', this.pets);
 
-async addPet(): Promise<void> {
-  this.error = '';
-  this.success = '';
+    } catch (error) {
 
-  if (!this.usuario) {
-    this.error = 'Debes iniciar sesión.';
-    return;
-  }
+      console.error('Error al cargar mascotas:', error);
 
-  if (!this.name.trim() || !this.breed.trim()) {
-    this.error = 'Completa el nombre y la raza.';
-    return;
+      this.error = 'No se pudieron cargar tus mascotas.';
+
+    } finally {
+
+      this.loading = false;
+
+      this.cdr.detectChanges();
+
+      console.log('Carga finalizada:', this.loading);
+    }
   }
 
-  this.saving = true;
+  async addPet(): Promise<void> {
 
-  try {
-    console.log('1. Preparando mascota...');
+    this.error = '';
+    this.success = '';
 
-    await this.petService.addPet({
-      name: this.name.trim(),
-      type: this.type,
-      breed: this.breed.trim(),
-      age: Number(this.age),
-      description: this.description.trim(),
-      sex: this.sex,
-      birthDate: this.birthDate || '',
-      weight: this.weight,
-      color: this.color,
-      personality: this.personality,
-      observations: this.observations
-    });
+    if (!this.usuario) {
+      this.error = 'Debes iniciar sesión.';
+      return;
+    }
 
-    console.log('2. Mascota guardada');
+    if (!this.name.trim() || !this.breed.trim()) {
+      this.error = 'Completa el nombre y la raza.';
+      return;
+    }
 
-    this.success = '¡Mascota registrada correctamente!';
+    this.saving = true;
 
-    await this.loadPets();
+    try {
 
-    this.name = '';
-    this.type = 'Perro';
-    this.breed = '';
-    this.age = null;
-    this.description = '';
-    this.sex = 'No identificado';
-    this.birthDate = '';
-    this.weight = null;
-    this.color = '';
-    this.personality = '';
-    this.observations = '';
+      await this.petService.addPet({
+        name: this.name.trim(),
+        type: this.type,
+        breed: this.breed.trim(),
+        age: Number(this.age),
+        description: this.description.trim(),
+        sex: this.sex,
+        birthDate: this.birthDate || '',
+        weight: this.weight,
+        color: this.color,
+        personality: this.personality,
+        observations: this.observations
+      });
 
-  } catch (error) {
-    console.error('Error al guardar mascota:', error);
-    this.error = 'No se pudo guardar la mascota.';
-  } finally {
-    this.saving = false;
-    console.log('3. Guardado finalizado');
+      this.success = '¡Mascota registrada correctamente!';
+
+      await this.loadPets();
+
+      this.name = '';
+      this.type = 'Perro';
+      this.breed = '';
+      this.age = null;
+      this.description = '';
+      this.sex = 'No identificado';
+      this.birthDate = '';
+      this.weight = null;
+      this.color = '';
+      this.personality = '';
+      this.observations = '';
+
+    } catch (error) {
+
+      console.error('Error al guardar mascota:', error);
+
+      this.error = 'No se pudo guardar la mascota.';
+
+    } finally {
+
+      this.saving = false;
+      this.cdr.detectChanges();
+
+    }
   }
-}
-
 
   async deletePet(pet: PetFirestore): Promise<void> {
+
     if (!pet.id) return;
 
     const confirmed = confirm(
@@ -173,12 +201,19 @@ async addPet(): Promise<void> {
     this.success = '';
 
     try {
+
       await this.petService.deletePet(pet.id);
+
       await this.loadPets();
+
       this.success = 'Mascota eliminada correctamente.';
+
     } catch (error) {
+
       console.error('Error al eliminar mascota:', error);
+
       this.error = 'No se pudo eliminar la mascota.';
+
     }
   }
 }
