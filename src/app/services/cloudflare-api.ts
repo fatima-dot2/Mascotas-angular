@@ -7,7 +7,7 @@ import { supabase } from './supabase';
 })
 export class CloudflareApiService {
 
-  private apiUrl = 'https://mascotas-angular.fatima24490.workers.dev';
+  private apiUrl = 'https://6dc5c8a3-mascotas-angular.fatima24490.workers.dev';
 
   // Probar conexión con Cloudflare
   async testConnection(): Promise<any> {

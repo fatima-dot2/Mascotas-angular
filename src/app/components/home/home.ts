@@ -20,7 +20,10 @@ export class Home implements OnInit, OnDestroy {
 
   private unsubscribeAuth?: () => void;
 
-  constructor(private authService: AuthService, private cloudflareApiService: CloudflareApiService) {}
+  constructor(
+    private authService: AuthService,
+    private cloudflareApiService: CloudflareApiService
+  ) {}
 
   ngOnInit(): void {
     this.unsubscribeAuth = this.authService.listenAuth(user => {
@@ -42,14 +45,33 @@ export class Home implements OnInit, OnDestroy {
     }
   }
 
+  
   async probarCloudflare() {
+    try {
+      const respuesta = await this.cloudflareApiService.testConnection();
+
+      this.resultadoCloudflare = respuesta.message;
+
+      console.log('Respuesta de Cloudflare:', respuesta);
+    } catch (error) {
+      console.error('Error:', error);
+      this.resultadoCloudflare = 'No se pudo conectar con Cloudflare.';
+    }
+  }
+
+  async probarConsultaMascotas() {
   try {
-    const respuesta = await this.cloudflareApiService.testConnection();
-    this.resultadoCloudflare = respuesta.message;
-    console.log('Respuesta de Cloudflare:', respuesta);
+    const mascotas = await this.cloudflareApiService.getPets();
+
+    console.log('Mascotas recibidas desde Cloudflare:', mascotas);
+
+    this.resultadoCloudflare =
+      `Consulta exitosa. Mascotas encontradas: ${mascotas.length}`;
+
   } catch (error) {
-    console.error('Error:', error);
-    this.resultadoCloudflare = 'No se pudo conectar con Cloudflare.';
+    console.error('Error al consultar mascotas:', error);
+    this.resultadoCloudflare = 'Error al consultar mascotas desde Cloudflare.';
   }
 }
-}
+  }
+

@@ -27,6 +27,11 @@
               <i class="bi bi-paw-fill me-2"></i>
               Administrar mis mascotas
             </a>
+            <button
+  class="btn btn-success mt-3 ms-2"
+  (click)="probarConsultaMascotas()">
+  Consultar mascotas desde Cloudflare
+</button>
 
             <button
               type="button"
@@ -198,6 +203,7 @@
       (click)="probarCloudflare()">
       Probar conexión
     </button>
+
 
     @if (resultadoCloudflare) {
       <p class="mt-3 mb-0">
