@@ -7,7 +7,7 @@ import { supabase } from './supabase';
 })
 export class CloudflareApiService {
 
-  private apiUrl = 'https://6dc5c8a3-mascotas-angular.fatima24490.workers.dev';
+ private apiUrl = 'https://mascotas-angular.fatima24490.workers.dev';
 
   // Probar conexión con Cloudflare
   async testConnection(): Promise<any> {
@@ -44,9 +44,15 @@ export class CloudflareApiService {
     });
 
     if (!response.ok) {
-      throw new Error('No se pudieron consultar las mascotas desde Cloudflare.');
-    }
+  throw new Error('No se pudieron consultar mascotas desde Cloudflare.');
+}
 
-    return await response.json();
-  }
+const cacheStatus = response.headers.get('X-Cache');
+
+console.log('Estado de Cloudflare KV:', cacheStatus);
+
+const mascotas = await response.json();
+
+return mascotas;
+}
 }
