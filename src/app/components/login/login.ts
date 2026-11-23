@@ -2,6 +2,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 
 @Component({
@@ -20,7 +21,10 @@ export class Login {
   error = '';
   success = '';
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   async submit(): Promise<void> {
     this.error = '';
@@ -65,6 +69,9 @@ export class Login {
         }
       } else {
         this.success = '¡Inicio de sesión exitoso!';
+
+        // Regresar automáticamente al inicio
+        await this.router.navigate(['/']);
       }
 
     } catch (error) {

@@ -28,12 +28,6 @@
               Administrar mis mascotas
             </a>
             <button
-  class="btn btn-success mt-3 ms-2"
-  (click)="probarConsultaMascotas()">
-  Consultar mascotas desde Cloudflare
-</button>
-
-            <button
               type="button"
               class="btn btn-outline-danger btn-lg rounded-pill"
               (click)="cerrarSesion()">
@@ -194,25 +188,6 @@
   </div>
 </section>
 
-<section class="container my-4">
-  <div class="card p-4 shadow-sm">
-    <h4>Prueba de Cloudflare Workers</h4>
-
-    <button
-      class="btn btn-primary"
-      (click)="probarCloudflare()">
-      Probar conexión
-    </button>
-
-
-    @if (resultadoCloudflare) {
-      <p class="mt-3 mb-0">
-        {{ resultadoCloudflare }}
-      </p>
-    }
-  </div>
-</section>
-
 <section id="aprende" class="py-5">
   <div class="container">
 
@@ -222,7 +197,7 @@
         <div class="col-lg-8">
           <h2 class="fw-bold">Aprende jugando</h2>
           <p class="mb-0">
-            Próximamente podrás poner a prueba tus conocimientos
+            Prueba tus conocimientos
             sobre la tenencia responsable.
           </p>
         </div>

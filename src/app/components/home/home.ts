@@ -1,5 +1,5 @@
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { User } from '@supabase/supabase-js';
 import { CloudflareApiService } from '../../services/cloudflare-api';
@@ -21,16 +21,22 @@ export class Home implements OnInit, OnDestroy {
   private unsubscribeAuth?: () => void;
 
   constructor(
-    private authService: AuthService,
-    private cloudflareApiService: CloudflareApiService
+  private authService: AuthService,
+  private cloudflareApiService: CloudflareApiService,
+  private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit(): void {
-    this.unsubscribeAuth = this.authService.listenAuth(user => {
-      this.usuario = user;
-      this.cargandoSesion = false;
-    });
-  }
+ ngOnInit(): void {
+  this.unsubscribeAuth = this.authService.listenAuth(user => {
+    this.usuario = user;
+    this.cargandoSesion = false;
+
+    // Actualizar la vista de Angular
+    this.cdr.detectChanges();
+
+    console.log('Usuario actualizado en Home:', this.usuario);
+  });
+}
 
   ngOnDestroy(): void {
     this.unsubscribeAuth?.();
