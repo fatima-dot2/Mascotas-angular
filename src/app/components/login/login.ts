@@ -16,10 +16,15 @@ export class Login {
 
   email = '';
   password = '';
+
   isRegister = false;
   loading = false;
   error = '';
   success = '';
+
+  accessType: 'cliente' | 'admin' = 'cliente';
+  adminCode = '';
+  verificationStep = false;
 
   constructor(
     private authService: AuthService,
@@ -29,6 +34,33 @@ export class Login {
   async submit(): Promise<void> {
     this.error = '';
     this.success = '';
+
+    // Verificar código de administrador
+    if (this.verificationStep) {
+      if (!/^\d{6}$/.test(this.adminCode)) {
+        this.error = 'Escribe un código válido de 6 dígitos.';
+        return;
+      }
+
+      this.loading = true;
+
+      try {
+       await this.authService.verifyAdminCode(this.adminCode);
+
+this.success = '¡Código verificado correctamente!';
+
+this.adminCode = '';
+
+await this.router.navigate(['/admin']);
+
+      } catch (error: any) {
+        this.error = error.message || 'No se pudo verificar el código.';
+      } finally {
+        this.loading = false;
+      }
+
+      return;
+    }
 
     if (!this.email.trim() || !this.password) {
       this.error = 'Completa el correo y la contraseña.';
@@ -43,40 +75,62 @@ export class Login {
     this.loading = true;
 
     try {
-      const result = this.isRegister
-        ? await this.authService.register(
-            this.email.trim(),
-            this.password
-          )
-        : await this.authService.login(
-            this.email.trim(),
-            this.password
-          );
+      // Registro de clientes
+      if (this.isRegister) {
+        const result = await this.authService.register(
+          this.email.trim(),
+          this.password
+        );
 
-      if (result.error) {
-        this.error = this.isRegister
-          ? 'No se pudo crear la cuenta: ' + result.error.message
-          : 'No se pudo iniciar sesión: ' + result.error.message;
+        if (result.error) {
+          this.error = 'No se pudo crear la cuenta: ' + result.error.message;
+          return;
+        }
+
+        this.accessType = 'cliente';
+
+        this.success = result.data.session
+          ? '¡Cuenta de cliente creada correctamente!'
+          : 'Cuenta creada. Revisa tu correo para confirmar el registro.';
+
         return;
       }
 
-      if (this.isRegister) {
-        if (result.data.session) {
-          this.success = '¡Cuenta creada correctamente!';
-        } else {
-          this.success =
-            'Cuenta creada. Revisa tu correo para confirmar el registro.';
-        }
-      } else {
-        this.success = '¡Inicio de sesión exitoso!';
+      // Inicio de sesión
+      const result = await this.authService.login(
+        this.email.trim(),
+        this.password
+      );
 
-        // Regresar automáticamente al inicio
+      if (result.error) {
+        this.error = 'No se pudo iniciar sesión: ' + result.error.message;
+        return;
+      }
+
+      // Acceso de administrador
+      if (this.accessType === 'admin') {
+        try {
+          await this.authService.requestAdminCode();
+
+          this.verificationStep = true;
+          this.success = 'Te enviamos un código de verificación a tu correo.';
+
+        } catch (error: any) {
+          await this.authService.logout();
+
+          this.error = error.message ||
+            'No tienes permisos de administrador o no se pudo enviar el código.';
+        }
+
+      } else {
+        // Acceso de cliente
+        this.success = '¡Inicio de sesión exitoso!';
         await this.router.navigate(['/']);
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error de autenticación:', error);
-      this.error = 'Ocurrió un error inesperado.';
+      this.error = error.message || 'Ocurrió un error inesperado.';
     } finally {
       this.loading = false;
     }
@@ -84,6 +138,9 @@ export class Login {
 
   cambiarModo(): void {
     this.isRegister = !this.isRegister;
+    this.accessType = 'cliente';
+    this.verificationStep = false;
+    this.adminCode = '';
     this.error = '';
     this.success = '';
   }

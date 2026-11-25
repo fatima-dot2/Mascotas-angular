@@ -8,8 +8,11 @@
           <div class="text-center mb-4">
             <i class="bi bi-heart-pulse-fill text-primary fs-1"></i>
             <h2 class="fw-bold mt-2">PetCare</h2>
+
             <p class="text-muted">
-              {{ isRegister ? 'Crea tu cuenta' : 'Bienvenido de nuevo' }}
+              {{ verificationStep
+                ? 'Verificación de administrador'
+                : (isRegister ? 'Crea tu cuenta' : 'Bienvenido de nuevo') }}
             </p>
           </div>
 
@@ -22,41 +25,94 @@
           </div>
 
           <form (ngSubmit)="submit()">
-            <div class="mb-3">
-              <label class="form-label">Correo electrónico</label>
-              <input
-                type="email"
-                class="form-control"
-                name="email"
-                [(ngModel)]="email"
-                required>
+
+            <!-- FORMULARIO NORMAL -->
+            <div *ngIf="!verificationStep">
+
+              <div class="mb-3">
+                <label class="form-label">Correo electrónico</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  name="email"
+                  [(ngModel)]="email"
+                  required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Tipo de cuenta</label>
+                <select
+                  class="form-select"
+                  name="accessType"
+                  [(ngModel)]="accessType"
+                  [disabled]="isRegister">
+
+                  <option value="cliente">Cliente</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Contraseña</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  name="password"
+                  [(ngModel)]="password"
+                  minlength="6"
+                  required>
+              </div>
+
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">Contraseña</label>
-              <input
-                type="password"
-                class="form-control"
-                name="password"
-                [(ngModel)]="password"
-                minlength="6"
-                required>
+            <!-- FORMULARIO DE VERIFICACIÓN -->
+            <div *ngIf="verificationStep">
+
+              <div class="alert alert-info">
+                Enviamos un código de seis dígitos a tu correo electrónico.
+                Escríbelo para continuar.
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">
+                  Código de administrador
+                </label>
+
+                <input
+                  type="text"
+                  class="form-control text-center fs-4"
+                  name="adminCode"
+                  [(ngModel)]="adminCode"
+                  maxlength="6"
+                  minlength="6"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  placeholder="000000"
+                  required>
+              </div>
+
             </div>
 
             <button
               type="submit"
               class="btn btn-primary w-100"
               [disabled]="loading">
-              {{ loading ? 'Procesando...' :
-                (isRegister ? 'Registrarme' : 'Iniciar sesión') }}
+
+              {{ loading
+                ? 'Procesando...'
+                : (verificationStep
+                    ? 'Verificar código'
+                    : (isRegister ? 'Registrarme' : 'Iniciar sesión')) }}
             </button>
+
           </form>
 
-          <div class="text-center mt-4">
+          <div class="text-center mt-4" *ngIf="!verificationStep">
             <button
               type="button"
               class="btn btn-link"
-              (click)="isRegister = !isRegister; error = ''; success = ''">
+              (click)="cambiarModo()">
+
               {{ isRegister
                 ? '¿Ya tienes cuenta? Inicia sesión'
                 : '¿No tienes cuenta? Regístrate' }}
