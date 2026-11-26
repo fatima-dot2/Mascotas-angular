@@ -157,4 +157,62 @@ async checkAdminAccess(): Promise<boolean> {
 }
 
 
+
+async getAdminUsers(): Promise<any[]> {
+  const token = await this.getAccessToken();
+
+  if (!token) {
+    throw new Error('No hay una sesión activa.');
+  }
+
+  const controller = new AbortController();
+
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, 15000);
+
+  try {
+    const response = await fetch(
+      'https://mascotas-angular.fatima24490.workers.dev/api/admin/users',
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        signal: controller.signal
+      }
+    );
+
+    const text = await response.text();
+
+    let result: any;
+
+    try {
+      result = JSON.parse(text);
+    } catch {
+      throw new Error('El servidor respondió con un formato inesperado.');
+    }
+
+    if (!response.ok || !result.success) {
+      throw new Error(
+        result.message || 'No se pudieron consultar los usuarios.'
+      );
+    }
+
+    return Array.isArray(result.users) ? result.users : [];
+
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      throw new Error('El servidor tardó demasiado en responder. Inténtalo nuevamente.');
+    }
+
+    throw error;
+
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+
+
 }

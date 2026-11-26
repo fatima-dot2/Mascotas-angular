@@ -2,11 +2,14 @@
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
+
       <div class="card shadow border-0 rounded-4">
         <div class="card-body p-4 p-md-5">
 
+          <!-- ENCABEZADO -->
           <div class="text-center mb-4">
             <i class="bi bi-heart-pulse-fill text-primary fs-1"></i>
+
             <h2 class="fw-bold mt-2">PetCare</h2>
 
             <p class="text-muted">
@@ -16,6 +19,7 @@
             </p>
           </div>
 
+          <!-- MENSAJES -->
           <div *ngIf="error" class="alert alert-danger">
             {{ error }}
           </div>
@@ -26,11 +30,13 @@
 
           <form (ngSubmit)="submit()">
 
-            <!-- FORMULARIO NORMAL -->
+            <!-- DATOS DE INICIO DE SESIÓN -->
             <div *ngIf="!verificationStep">
 
+              <!-- CORREO -->
               <div class="mb-3">
                 <label class="form-label">Correo electrónico</label>
+
                 <input
                   type="email"
                   class="form-control"
@@ -39,8 +45,12 @@
                   required>
               </div>
 
+              <!-- TIPO DE CUENTA -->
               <div class="mb-3">
-                <label class="form-label fw-semibold">Tipo de cuenta</label>
+                <label class="form-label fw-semibold">
+                  Tipo de cuenta
+                </label>
+
                 <select
                   class="form-select"
                   name="accessType"
@@ -49,11 +59,31 @@
 
                   <option value="cliente">Cliente</option>
                   <option value="admin">Administrador</option>
+
                 </select>
               </div>
 
+              <!-- AVISO ADMINISTRADOR -->
+              <div
+                *ngIf="accessType === 'admin' && !isRegister"
+                class="alert alert-info">
+
+                <i class="bi bi-shield-lock-fill"></i>
+
+                <strong> Acceso de administrador</strong>
+
+                <p class="mb-0 mt-2">
+                  Introduce tu correo, contraseña y código de seguridad.
+                  Si todavía no has recibido el código, primero inicia
+                  sesión para solicitarlo.
+                </p>
+
+              </div>
+
+              <!-- CONTRASEÑA -->
               <div class="mb-3">
                 <label class="form-label">Contraseña</label>
+
                 <input
                   type="password"
                   class="form-control"
@@ -65,34 +95,45 @@
 
             </div>
 
-            <!-- FORMULARIO DE VERIFICACIÓN -->
+            <!-- AVISO DE VERIFICACIÓN -->
             <div *ngIf="verificationStep">
 
               <div class="alert alert-info">
-                Enviamos un código de seis dígitos a tu correo electrónico.
+                <i class="bi bi-envelope-check"></i>
+
+                Enviamos un código de seis dígitos a tu correo.
                 Escríbelo para continuar.
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label fw-semibold">
-                  Código de administrador
-                </label>
-
-                <input
-                  type="text"
-                  class="form-control text-center fs-4"
-                  name="adminCode"
-                  [(ngModel)]="adminCode"
-                  maxlength="6"
-                  minlength="6"
-                  inputmode="numeric"
-                  autocomplete="one-time-code"
-                  placeholder="000000"
-                  required>
               </div>
 
             </div>
 
+            <!-- ÚNICO CAMPO DE CÓDIGO -->
+            <div
+              *ngIf="accessType === 'admin' && !isRegister"
+              class="mb-3">
+
+              <label class="form-label fw-semibold">
+                <i class="bi bi-shield-lock-fill"></i>
+                Código de administrador
+              </label>
+
+              <input
+                type="text"
+                class="form-control text-center fs-4"
+                name="adminCode"
+                [(ngModel)]="adminCode"
+                maxlength="6"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                placeholder="000000">
+
+              <small class="text-muted">
+                Puedes escribir el código antes o después de iniciar sesión.
+              </small>
+
+            </div>
+
+            <!-- BOTÓN -->
             <button
               type="submit"
               class="btn btn-primary w-100"
@@ -103,11 +144,14 @@
                 : (verificationStep
                     ? 'Verificar código'
                     : (isRegister ? 'Registrarme' : 'Iniciar sesión')) }}
+
             </button>
 
           </form>
 
+          <!-- CAMBIAR ENTRE REGISTRO E INICIO -->
           <div class="text-center mt-4" *ngIf="!verificationStep">
+
             <button
               type="button"
               class="btn btn-link"
@@ -116,11 +160,14 @@
               {{ isRegister
                 ? '¿Ya tienes cuenta? Inicia sesión'
                 : '¿No tienes cuenta? Regístrate' }}
+
             </button>
+
           </div>
 
         </div>
       </div>
+
     </div>
   </div>
 </div>
